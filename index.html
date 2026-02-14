@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpatialHash | High-Performance Unity Partitioning</title>
-    <meta name="description" content="A high-performance, generic spatial hash for Unity. Optimized for dynamic objects, networking, and AOI.">
+    <title>Spatial Hashing Explained | Trent Sterling</title>
+    <meta name="description" content="A technical deep-dive into spatial partitioning for Unity games. Learn how to optimize collisions, networking, and AI lookups.">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Prism.js for Code Highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -20,23 +20,15 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['Fira Code', 'monospace'],
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                            950: '#082f49',
-                        },
+                        bg: '#050505',
+                        card: '#0a0a0a',
+                        border: '#1f1f1f',
+                        accent: '#3b82f6', // blue-500
+                        accentHover: '#2563eb', // blue-600
                     }
                 }
             }
@@ -44,284 +36,253 @@
     </script>
 
     <style>
-        body { background-color: #020617; color: #f8fafc; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .hero-gradient { background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.15) 0%, transparent 50%); }
-        .grid-pattern { background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
-        code[class*="language-"], pre[class*="language-"] { font-size: 0.9rem !important; }
-        .feature-card:hover { border-color: rgba(14, 165, 233, 0.4); transform: translateY(-2px); transition: all 0.3s ease; }
+        body { background-color: #050505; color: #e5e5e5; }
+        .glass { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glow { box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.15); }
+        .grid-bg { 
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        code[class*="language-"], pre[class*="language-"] { font-size: 0.85rem !important; background: #0a0a0a !important; text-shadow: none !important; }
     </style>
 </head>
-<body class="font-sans selection:bg-brand-500 selection:text-white">
+<body class="font-sans selection:bg-accent selection:text-white">
 
-    <div class="fixed inset-0 grid-pattern pointer-events-none"></div>
-    <div class="fixed inset-0 hero-gradient pointer-events-none"></div>
+    <div class="fixed inset-0 grid-bg pointer-events-none opacity-50"></div>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 py-4 px-6 border-b border-white/5 glass">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3 group">
-                <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20 group-hover:scale-110 transition-transform">
-                    <i data-lucide="layers" class="w-6 h-6"></i>
+    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-border glass">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="https://tront.xyz" class="flex items-center space-x-2 group">
+                <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-bold group-hover:scale-105 transition-transform">
+                    <span class="font-mono text-lg">T</span>
                 </div>
-                <span class="text-xl font-extrabold tracking-tight italic">spatialhash</span>
-            </div>
-            <div class="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-400">
-                <a href="#why" class="hover:text-brand-400 transition-colors">The Why</a>
-                <a href="#features" class="hover:text-brand-400 transition-colors">Features</a>
-                <a href="#examples" class="hover:text-brand-400 transition-colors">Use Cases</a>
-                <a href="#get-started" class="hover:text-brand-400 transition-colors">Docs</a>
-            </div>
-            <div class="flex items-center space-x-4">
-                <a href="https://github.com/TrentSterling/spatialhash" class="flex items-center space-x-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-sm">
+                <span class="font-bold text-lg tracking-tight group-hover:text-white text-gray-400 transition-colors">Trent Sterling</span>
+            </a>
+            <div class="flex items-center space-x-6 text-sm font-medium text-gray-400">
+                <a href="#concept" class="hover:text-white transition-colors">Concept</a>
+                <a href="#implementation" class="hover:text-white transition-colors">Code</a>
+                <a href="https://github.com/TrentSterling/spatialhash" class="text-white hover:text-accent transition-colors flex items-center space-x-2">
                     <i data-lucide="github" class="w-4 h-4"></i>
-                    <span>GitHub</span>
+                    <span>Source</span>
                 </a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <section class="relative pt-40 pb-20 px-6 overflow-hidden">
-        <div class="max-w-4xl mx-auto text-center">
-            <div class="inline-flex items-center space-x-2 bg-brand-500/10 border border-brand-500/20 px-4 py-1.5 rounded-full text-brand-400 text-sm font-bold mb-8 animate-pulse">
-                <span>NEW</span>
-                <span class="w-1 h-1 bg-brand-400 rounded-full"></span>
-                <span>Version 1.0 Live</span>
+    <!-- Header / Intro -->
+    <header class="pt-32 pb-20 px-6 relative overflow-hidden">
+        <div class="max-w-3xl mx-auto text-center">
+            <div class="inline-flex items-center space-x-2 bg-accent/10 border border-accent/20 px-3 py-1 rounded-full text-accent text-xs font-bold mb-6 font-mono tracking-wide">
+                <span>OPTIMIZATION 101</span>
             </div>
-            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
-                High-Performance <br/>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Spatial Partitioning</span>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-tight text-white">
+                Stop Checking Every Object.
+                <span class="text-gray-500 block text-2xl md:text-4xl mt-2 font-medium">Use a Spatial Hash.</span>
             </h1>
-            <p class="text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Stop looping through every object. Start hashing them. A generic, non-allocating spatial hash built for high-speed Unity games.
+            <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Most developers hit a wall when their game scales. Checking collisions, finding path nodes, or syncing networks at <span class="text-red-400 font-mono">O(N²)</span> is a death sentence. Here's how to fix it with a simple grid.
             </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <a href="#get-started" class="w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white px-8 py-4 rounded-2xl font-extrabold shadow-lg shadow-brand-500/30 transition-all text-lg">
-                    Get Started
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#concept" class="flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-200 transition-colors">
+                    <span>Explain the Logic</span>
+                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
                 </a>
-                <a href="#why" class="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white border border-white/10 px-8 py-4 rounded-2xl font-extrabold transition-all text-lg">
-                    Read the Why
+                <a href="https://github.com/TrentSterling/spatialhash" class="flex items-center space-x-2 bg-border hover:bg-white/10 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/5">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    <span>View on GitHub</span>
                 </a>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- The Problem (Blog Intro) -->
-    <section id="why" class="py-24 px-6 relative">
+    <!-- The Concept -->
+    <section id="concept" class="py-20 px-6 border-t border-border bg-card/50">
         <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-extrabold mb-4 italic">Beyond the Grid</h2>
-                <div class="w-20 h-1 bg-brand-500 mx-auto"></div>
-            </div>
-            <div class="glass p-8 md:p-12 rounded-3xl border border-white/10 relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                    <i data-lucide="zap" class="w-40 h-40"></i>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <h2 class="text-3xl font-bold text-white flex items-center">
+                        <i data-lucide="grid" class="w-6 h-6 mr-3 text-accent"></i>
+                        The Grid Strategy
+                    </h2>
+                    <p class="text-gray-400 leading-relaxed">
+                        Imagine your world is a giant chessboard. Instead of asking every piece "Are you near me?", you just look at the square you're standing on (and maybe the 8 around it).
+                    </p>
+                    <p class="text-gray-400 leading-relaxed">
+                        A <strong class="text-white">Spatial Hash</strong> maps 3D coordinates to a simple integer key. It's just a Dictionary lookup: <code class="bg-border px-1 py-0.5 rounded text-sm font-mono text-accent">Dictionary&lt;int, List&lt;T&gt;&gt;</code>.
+                    </p>
+                    <ul class="space-y-3 text-gray-400 mt-4">
+                        <li class="flex items-start">
+                            <i data-lucide="check" class="w-5 h-5 mr-3 text-green-500 mt-0.5"></i>
+                            <span><strong>O(1) Insertion:</strong> Math.Floor(pos / cellSize)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check" class="w-5 h-5 mr-3 text-green-500 mt-0.5"></i>
+                            <span><strong>O(1) Lookup:</strong> Only check the relevant bucket.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="check" class="w-5 h-5 mr-3 text-green-500 mt-0.5"></i>
+                            <span><strong>Generic:</strong> Works for Colliders, NetworkIdentity, AI, etc.</span>
+                        </li>
+                    </ul>
                 </div>
-                <div class="space-y-6 text-slate-300 text-lg leading-relaxed">
-                    <p>
-                        If you’ve ever built a game with hundreds of units, a massive open world, or a multiplayer system, you’ve hit <span class="text-white font-bold">"The Wall."</span> Your collision checks, pathfinding lookups, or network sync logic starts eating your frame budget for breakfast.
-                    </p>
-                    <blockquote class="border-l-4 border-brand-500 pl-6 py-2 italic bg-brand-500/5 text-slate-200">
-                        "Checking every object against every other object is fine for 10 units. At 1,000 units, you’re doing 1,000,000 checks. Even on modern CPUs, that’s a death sentence."
-                    </blockquote>
-                    <p>
-                        While many developers jump straight to Quadtrees or BSP Trees, they often overlook the simpler, faster, and more dynamic cousin: the <span class="text-brand-400 font-bold underline decoration-brand-500/30">Spatial Hash</span>.
-                    </p>
-                    <div class="grid md:grid-cols-2 gap-8 pt-6">
-                        <div class="space-y-4">
-                            <h3 class="text-xl font-bold text-white flex items-center">
-                                <i data-lucide="help-circle" class="w-5 h-5 mr-2 text-brand-400"></i>
-                                What is it?
-                            </h3>
-                            <p class="text-base text-slate-400">
-                                Imagine your game world divided into a grid. Instead of a complex tree structure, a Spatial Hash is essentially a <strong>Dictionary where the key is a grid cell coordinate.</strong>
-                            </p>
+                <!-- Visual Representation -->
+                <div class="relative group">
+                    <div class="absolute inset-0 bg-accent/20 blur-3xl rounded-full opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                    <div class="glass p-6 rounded-xl border border-border relative">
+                        <div class="grid grid-cols-4 gap-1 h-64 w-full">
+                            <!-- Simple CSS Grid Visualization -->
+                            <div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div>
+                            <div class="bg-white/5 rounded"></div>
+                            <div class="bg-accent/20 border border-accent rounded flex items-center justify-center relative">
+                                <div class="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
+                                <div class="absolute -top-2 -right-2 bg-black text-xs px-2 py-0.5 rounded border border-accent text-accent">You</div>
+                            </div>
+                            <div class="bg-accent/10 border border-accent/30 rounded"></div><div class="bg-white/5 rounded"></div>
+                            <div class="bg-white/5 rounded"></div><div class="bg-accent/10 border border-accent/30 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div>
+                            <div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div>
                         </div>
-                        <div class="space-y-4">
-                            <h3 class="text-xl font-bold text-white flex items-center">
-                                <i data-lucide="trending-up" class="w-5 h-5 mr-2 text-brand-400"></i>
-                                The Result
-                            </h3>
-                            <p class="text-base text-slate-400">
-                                This gives us <strong>O(1)</strong> average-time complexity for everything. Insertion, removal, and finding neighbors all happen in near-constant time.
-                            </p>
+                        <div class="mt-4 text-center text-xs font-mono text-gray-500">
+                            Only querying highlighted cells vs. entire grid
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features -->
-    <section id="features" class="py-24 px-6 bg-slate-900/50">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-extrabold mb-4">Why This Implementation?</h2>
-                <p class="text-slate-400">Most spatial hashes are rigid. Ours is built for modern gamedev.</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Feature 1 -->
-                <div class="feature-card glass p-8 rounded-3xl border border-white/5 transition-all">
-                    <div class="w-12 h-12 bg-brand-500/20 text-brand-400 rounded-xl flex items-center justify-center mb-6">
-                        <i data-lucide="box" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Truly Generic</h3>
-                    <p class="text-slate-400 leading-relaxed">
-                        <code>SpatialHash&lt;T&gt;</code> doesn't care if you're hashing NetworkEntities, PathfindingNodes, or Room components. It just works.
-                    </p>
-                </div>
-                <!-- Feature 2 -->
-                <div class="feature-card glass p-8 rounded-3xl border border-white/5 transition-all">
-                    <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center mb-6">
-                        <i data-lucide="cpu" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Non-Allocating</h3>
-                    <p class="text-slate-400 leading-relaxed">
-                        Unity's GC is the enemy. Our query methods use pre-allocated lists to keep your memory profile flat and your frames smooth.
-                    </p>
-                </div>
-                <!-- Feature 3 -->
-                <div class="feature-card glass p-8 rounded-3xl border border-white/5 transition-all">
-                    <div class="w-12 h-12 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center mb-6">
-                        <i data-lucide="maximize" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">3D Native</h3>
-                    <p class="text-slate-400 leading-relaxed">
-                        Handles <code>Vector3</code> natively. Perfect for flight sims, vertical dungeons, or complex 3D environments.
-                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Use Cases -->
-    <section id="examples" class="py-24 px-6">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-extrabold mb-4 italic">5 Ways This Saves Your Project</h2>
-                <p class="text-slate-400">Battle-tested solutions for common game development bottlenecks.</p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="glass p-8 rounded-3xl border border-white/5 hover:border-brand-500/30 transition-all group">
-                    <div class="flex items-start space-x-6">
-                        <div class="w-14 h-14 bg-brand-500/10 text-brand-400 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i data-lucide="globe" class="w-8 h-8"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-2">Network AOI</h3>
-                            <p class="text-slate-400">
-                                Perfect for PurrNet, FishNet, or Mirror. Only sync data to players within a specific "bubble." Keep those packets lean.
-                            </p>
-                        </div>
+    <section class="py-20 px-6 border-t border-border">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-white mb-12 text-center">Where to use it</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Case 1 -->
+                <div class="glass p-6 rounded-xl border border-border hover:border-accent/50 transition-colors">
+                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
                     </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Network AOI</h3>
+                    <p class="text-sm text-gray-400">
+                        Perfect for <strong>FishNet</strong>, <strong>Mirror</strong>, or Mikkel's <strong>PurrNet</strong>. Only sync data to players within a specific radius. Don't send movement packets to someone 2km away.
+                    </p>
                 </div>
-                <div class="glass p-8 rounded-3xl border border-white/5 hover:border-brand-500/30 transition-all group">
-                    <div class="flex items-start space-x-6">
-                        <div class="w-14 h-14 bg-brand-500/10 text-brand-400 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i data-lucide="zap" class="w-8 h-8"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-2">O(N) Collisions</h3>
-                            <p class="text-slate-400">
-                                Standard collision is O(N²). Turn 1,000,000 checks into 1,000. Handle thousands of projectiles without breaking a sweat.
-                            </p>
-                        </div>
+                <!-- Case 2 -->
+                <div class="glass p-6 rounded-xl border border-border hover:border-accent/50 transition-colors">
+                    <div class="w-10 h-10 bg-red-500/10 text-red-400 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="crosshair" class="w-5 h-5"></i>
                     </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Bullet Hell</h3>
+                    <p class="text-sm text-gray-400">
+                        Checking 10,000 bullets against 500 enemies? A spatial hash turns that from a slideshow into a smooth 60fps experience.
+                    </p>
                 </div>
-                <div class="glass p-8 rounded-3xl border border-white/5 hover:border-brand-500/30 transition-all group">
-                    <div class="flex items-start space-x-6">
-                        <div class="w-14 h-14 bg-brand-500/10 text-brand-400 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i data-lucide="navigation" class="w-8 h-8"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-2">Smart Pathfinding</h3>
-                            <p class="text-slate-400">
-                                Instantly find the nearest nav-node. Query only the immediate cell around a click instead of looping the entire graph.
-                            </p>
-                        </div>
+                <!-- Case 3 -->
+                <div class="glass p-6 rounded-xl border border-border hover:border-accent/50 transition-colors">
+                    <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="map" class="w-5 h-5"></i>
                     </div>
-                </div>
-                <div class="glass p-8 rounded-3xl border border-white/5 hover:border-brand-500/30 transition-all group">
-                    <div class="flex items-start space-x-6">
-                        <div class="w-14 h-14 bg-brand-500/10 text-brand-400 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i data-lucide="layout-grid" class="w-8 h-8"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-2">World Streaming</h3>
-                            <p class="text-slate-400">
-                                Manage "Chunks" dynamically. Automatically enable/disable chunks based on player proximity.
-                            </p>
-                        </div>
-                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">World Streaming</h3>
+                    <p class="text-sm text-gray-400">
+                        Use the hash to manage chunks. "Which chunk am I in?" becomes a single integer division.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Get Started / Code -->
-    <section id="get-started" class="py-24 px-6 bg-slate-950">
+    <!-- Implementation Code -->
+    <section id="implementation" class="py-20 px-6 border-t border-border bg-card/30">
         <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-extrabold mb-4">Quick Start</h2>
-                <p class="text-slate-400">Copy, paste, optimize.</p>
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-white">The Implementation</h2>
+                <span class="text-sm font-mono text-gray-500">SpatialHash.cs</span>
             </div>
-            <div class="glass p-2 rounded-3xl border border-white/10 overflow-hidden mb-8">
-                <div class="bg-slate-900 px-6 py-4 border-b border-white/5 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-amber-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-                    </div>
-                    <span class="text-xs font-mono text-slate-500">ExampleUsage.cs</span>
+            
+            <div class="rounded-xl overflow-hidden border border-border bg-[#0a0a0a] shadow-2xl">
+                <div class="flex items-center px-4 py-2 border-b border-white/5 bg-white/5 space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
                 </div>
-                <pre class="!bg-slate-950 !m-0 rounded-b-3xl"><code class="language-csharp">using SpatialHash;
+                <pre class="!m-0 !p-6 overflow-x-auto"><code class="language-csharp">using System.Collections.Generic;
+using UnityEngine;
 
-// 1. Create (Cell size should be ~2x average object size)
-var hash = new SpatialHash&lt;Transform&gt;(cellSize: 10f);
+namespace GenericSpatialHash {
+    public class SpatialHash<T> {
+        // Dictionary maps cell ID -> List of Objects
+        private Dictionary<int, List<T>> _grid;
+        private float _cellSize;
 
-// 2. Insert or Update (Fast O(1))
-hash.Update(entityTransform, entityTransform.position);
+        public SpatialHash(float cellSize) {
+            _cellSize = cellSize;
+            _grid = new Dictionary<int, List<T>>();
+        }
 
-// 3. Query (Non-allocating results)
-List&lt;Transform&gt; results = new List&lt;Transform&gt;();
-hash.QueryRadius(playerPosition, 20f, results);
+        // Fast, allocation-free key generation
+        private int GetKey(Vector3 pos) {
+            int x = Mathf.FloorToInt(pos.x / _cellSize);
+            int y = Mathf.FloorToInt(pos.y / _cellSize);
+            int z = Mathf.FloorToInt(pos.z / _cellSize);
+            
+            // Simple hash combine
+            unchecked {
+                int hash = 17;
+                hash = hash * 23 + x;
+                hash = hash * 23 + y;
+                hash = hash * 23 + z;
+                return hash;
+            }
+        }
 
-foreach(var nearby in results) {
-    // High-performance proximity logic here
+        // Query without garbage collection
+        public void Query(Vector3 pos, float radius, List<T> results) {
+            // ... Math to find min/max cell range ...
+            // Loop only relevant cells and add to results list
+        }
+    }
 }</code></pre>
             </div>
-            <div class="text-center">
-                <p class="text-slate-400 mb-6">Built for the gamedev community. Simple, fast, no bloat.</p>
-                <div class="flex flex-wrap items-center justify-center gap-4">
-                    <a href="https://github.com/TrentSterling/spatialhash" class="bg-white text-slate-950 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all flex items-center">
-                        <i data-lucide="github" class="w-5 h-5 mr-2"></i>
-                        Clone on GitHub
-                    </a>
-                    <a href="https://discord.gg/yourdiscord" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center">
-                        <i data-lucide="message-square" class="w-5 h-5 mr-2"></i>
-                        Join Discord
-                    </a>
-                </div>
+            <div class="text-center mt-8">
+                <a href="https://github.com/TrentSterling/spatialhash" class="inline-flex items-center space-x-2 text-accent hover:text-white transition-colors font-medium border-b border-transparent hover:border-white pb-0.5">
+                    <span>View full source code</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-12 border-t border-white/5 text-center">
-        <div class="max-w-4xl mx-auto px-6 flex flex-col items-center">
-            <div class="flex items-center space-x-3 mb-6">
-                <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                    <i data-lucide="layers" class="w-5 h-5"></i>
+    <footer class="py-12 border-t border-border text-center bg-black">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="flex flex-col items-center">
+                <a href="https://tront.xyz" class="mb-6">
+                    <div class="w-10 h-10 bg-accent rounded-lg flex items-center justify-center text-white font-bold text-xl mx-auto">T</div>
+                </a>
+                <h3 class="text-white font-bold text-lg mb-2">Built by Trent Sterling</h3>
+                <p class="text-gray-500 text-sm mb-8 max-w-md mx-auto">
+                    A resource for my friends and the community. <br/>
+                    Come say hi if this saved your frame rate.
+                </p>
+                
+                <div class="flex flex-wrap justify-center gap-6 text-sm font-medium text-gray-400">
+                    <a href="https://discord.gg/0hyoWZyM6y7kkFCN" class="flex items-center space-x-2 hover:text-[#5865F2] transition-colors">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>Discord</span>
+                    </a>
+                    <a href="https://github.com/TrentSterling" class="flex items-center space-x-2 hover:text-white transition-colors">
+                        <i data-lucide="github" class="w-4 h-4"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="https://twitter.com/Trent_Sterling" class="flex items-center space-x-2 hover:text-[#1DA1F2] transition-colors">
+                        <i data-lucide="twitter" class="w-4 h-4"></i>
+                        <span>Twitter</span>
+                    </a>
+                    <a href="https://blog.tront.xyz" class="flex items-center space-x-2 hover:text-orange-400 transition-colors">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Blog</span>
+                    </a>
                 </div>
-                <span class="font-extrabold italic text-lg tracking-tight">spatialhash</span>
-            </div>
-            <p class="text-slate-500 text-sm mb-4">
-                © 2026 spatialhash | Created by <a href="https://tront.xyz" class="text-brand-400 hover:underline">Trent Sterling</a>
-            </p>
-            <div class="flex items-center space-x-6">
-                <a href="#" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-                <a href="#" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
             </div>
         </div>
     </footer>
