@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Art of Spatial Hashing | Trent Sterling</title>
     
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="The Art of Spatial Hashing | Trent Sterling">
+    <meta property="og:description" content="A visual and technical deep-dive into high-performance spatial partitioning for Unity. Optimization from O(N²) to million-particle performance.">
+    <meta property="og:image" content="https://github.com/TrentSterling/spatialhash/raw/master/spatialhash_preview.png">
+    <meta property="og:url" content="http://tront.xyz/spatialhash/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#FFD700">
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 
@@ -38,6 +46,24 @@
             --accent: #f43f5e;
             --accent-muted: #9f1239;
             --accent-bg: rgba(244, 63, 94, 0.1);
+        }
+
+        [data-theme="amethyst"] {
+            --accent: #a855f7;
+            --accent-muted: #7e22ce;
+            --accent-bg: rgba(168, 85, 247, 0.1);
+        }
+
+        [data-theme="amber"] {
+            --accent: #f59e0b;
+            --accent-muted: #b45309;
+            --accent-bg: rgba(245, 158, 11, 0.1);
+        }
+
+        [data-theme="slate"] {
+            --accent: #94a3b8;
+            --accent-muted: #475569;
+            --accent-bg: rgba(148, 163, 184, 0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -105,10 +131,13 @@
         </div>
         <div class="theme-switcher">
             <span style="font-size: 0.7rem; color: var(--text-dim); margin-right: 0.5rem; letter-spacing: 0.1em;">THEME</span>
-            <div class="theme-btn active" style="background: #FFD700;" onclick="setTheme('gold', this)"></div>
-            <div class="theme-btn" style="background: #00f2ff;" onclick="setTheme('cyber', this)"></div>
-            <div class="theme-btn" style="background: #10b981;" onclick="setTheme('emerald', this)"></div>
-            <div class="theme-btn" style="background: #f43f5e;" onclick="setTheme('rose', this)"></div>
+            <div class="theme-btn active" style="background: #FFD700;" onclick="setTheme('gold', this)" title="Gold"></div>
+            <div class="theme-btn" style="background: #00f2ff;" onclick="setTheme('cyber', this)" title="Cyber"></div>
+            <div class="theme-btn" style="background: #10b981;" onclick="setTheme('emerald', this)" title="Emerald"></div>
+            <div class="theme-btn" style="background: #f43f5e;" onclick="setTheme('rose', this)" title="Rose"></div>
+            <div class="theme-btn" style="background: #a855f7;" onclick="setTheme('amethyst', this)" title="Amethyst"></div>
+            <div class="theme-btn" style="background: #f59e0b;" onclick="setTheme('amber', this)" title="Amber"></div>
+            <div class="theme-btn" style="background: #94a3b8;" onclick="setTheme('slate', this)" title="Slate"></div>
         </div>
     </nav>
 
