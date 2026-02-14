@@ -3,140 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Understanding Spatial Hashing | Trent Sterling</title>
+    <title>The Art of Spatial Hashing | Trent Sterling</title>
     
-    <!-- Simple, clean typography -->
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <!-- Prism.js for code -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 
     <style>
         :root {
-            --bg: #ffffff;
-            --text: #1a1a1a;
-            --muted: #666666;
-            --accent: #0066cc;
-            --code-bg: #f5f5f5;
-            --border: #e0e0e0;
+            /* Trent's Premium Gold/OLED Palette */
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --surface-hover: #141414;
+            --text: #ffffff;
+            --text-dim: #a3a3a3;
+            --gold: #FFD700;
+            --gold-muted: #9a6700;
+            --gold-bg: rgba(255, 215, 0, 0.1);
+            --border: #1f1f1f;
+            --accent-glow: rgba(255, 215, 0, 0.05);
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #121212;
-                --text: #e0e0e0;
-                --muted: #a0a0a0;
-                --accent: #4da6ff;
-                --code-bg: #1e1e1e;
-                --border: #333333;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'IBM Plex Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             line-height: 1.6;
             color: var(--text);
             background: var(--bg);
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 4rem 1.5rem;
+            -webkit-font-smoothing: antialiased;
         }
 
-        header { margin-bottom: 4rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem; }
-        h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-        h2 { font-size: 1.75rem; font-weight: 600; margin-top: 3rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; }
+        /* Nav */
+        nav {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 4rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+        nav a { color: var(--text-dim); text-decoration: none; transition: all 0.2s; }
+        nav a:hover { color: var(--gold); }
+
+        /* Typography */
+        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 1rem; color: var(--gold); }
+        h2 { font-size: 2rem; font-weight: 700; margin: 4rem 0 1.5rem; border-left: 4px solid var(--gold); padding-left: 1.5rem; letter-spacing: -0.02em; }
+        h3 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--gold-muted); }
         
-        p { margin-bottom: 1.5rem; font-size: 1.1rem; }
-        .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
-        .meta a { color: var(--accent); text-decoration: none; margin-right: 1rem; }
+        p { margin-bottom: 1.5rem; font-size: 1.15rem; color: var(--text-dim); }
+        strong { color: var(--text); font-weight: 600; }
 
-        code { font-family: 'IBM Plex Mono', monospace; font-size: 0.9em; background: var(--code-bg); padding: 0.2em 0.4em; border-radius: 3px; }
-        pre { background: var(--code-bg); padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border); }
-        pre code { background: none; padding: 0; }
+        /* Meta */
+        .subtitle { font-size: 1.4rem; color: var(--text-dim); margin-bottom: 2rem; font-weight: 400; }
+        .meta { display: flex; align-items: center; gap: 1rem; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 3rem; }
+        .meta img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--gold); }
 
-        blockquote { border-left: 4px solid var(--accent); padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: var(--muted); }
-        
-        .math { font-family: 'IBM Plex Mono', monospace; background: var(--accent); color: white; padding: 1rem; border-radius: 8px; text-align: center; margin: 2rem 0; font-weight: 500; }
+        /* Code & Math */
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; background: var(--surface); color: var(--gold); padding: 0.2em 0.4em; border-radius: 4px; }
+        pre { background: var(--surface) !important; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin: 2rem 0; overflow-x: auto; position: relative; }
+        pre::after { content: 'C#'; position: absolute; top: 0.5rem; right: 1rem; font-size: 0.7rem; color: var(--gold-muted); font-family: 'JetBrains Mono'; }
+        pre code { background: none !important; padding: 0 !important; font-size: 0.9em !important; }
 
-        .nav { margin-bottom: 2rem; }
-        .nav a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-right: 1.5rem; border-bottom: 2px solid transparent; }
-        .nav a:hover { border-bottom-color: var(--accent); }
+        .math-box {
+            background: var(--gold-bg);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            margin: 3rem 0;
+            position: relative;
+        }
+        .math-box::before { content: 'THE FORMULA'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 1rem; color: var(--gold); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.2em; }
+        .math-box .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--gold); }
 
-        footer { margin-top: 6rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; text-align: center; }
-        footer a { color: var(--accent); }
+        /* Features/Use Cases */
+        .feature-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 1.5rem; margin: 3rem 0; }
+        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; transition: all 0.2s; }
+        .feature:hover { border-color: var(--gold-muted); background: var(--surface-hover); transform: translateY(-4px); }
+        .feature h4 { color: var(--gold); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .feature p { font-size: 0.95rem; margin-bottom: 0; }
 
-        .diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; text-align: center; margin: 2rem 0; }
+        blockquote { background: var(--gold-bg); border-radius: 12px; padding: 2rem; margin: 3rem 0; border-left: 4px solid var(--gold); }
+        blockquote p { color: var(--text); font-style: italic; margin-bottom: 0; font-size: 1.25rem; }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
-            body { padding: 1rem; }
+        footer { margin-top: 8rem; padding: 4rem 0; border-top: 1px solid var(--border); text-align: center; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
+        .footer-links a { color: var(--gold-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--gold); }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .feature-grid { grid-template-cols: 1fr; }
+            body { padding-top: 2rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="nav">
+    <nav>
         <a href="https://tront.xyz">Home</a>
         <a href="https://blog.tront.xyz">Blog</a>
         <a href="https://github.com/TrentSterling/spatialhash">GitHub</a>
         <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
-    </div>
+    </nav>
 
     <header>
-        <h1>Understanding Spatial Hashing</h1>
-        <p class="meta">
-            By <a href="https://tront.xyz">Trent Sterling</a> • Feb 14, 2026 • Optimization Tutorial
-        </p>
-        <p style="font-size: 1.2rem; color: var(--muted);">
-            Why your game lags at 1,000 units, and how a simple grid fixes it without allocating a single byte of garbage.
-        </p>
+        <h1>Spatial Hashing <br/>Deep Dive.</h1>
+        <p class="subtitle">The $O(N^2)$ killer for Unity and the secret to clean, non-allocating proximity queries.</p>
+        <div class="meta">
+            <img src="https://github.com/TrentSterling.png" alt="Trent Sterling">
+            <span>By <strong>Trent Sterling</strong></span>
+            <span>•</span>
+            <span>Feb 14, 2026</span>
+            <span>•</span>
+            <span style="color: var(--gold)">Unity Performance</span>
+        </div>
     </header>
 
     <section>
-        <h2>The Problem: The $O(N^2)$ Trap</h2>
         <p>
-            You're building a game. You have 1,000 projectiles. You have 100 enemies. Every frame, you want to know if a projectile hit an enemy.
-        </p>
-        <p>
-            The naive way: 
-            <code>foreach(projectile in bullets) foreach(enemy in enemies) CheckCollision(projectile, enemy);</code>
-        </p>
-        <p>
-            That is <strong>100,000 checks every single frame</strong>. 
-            At 2,000 bullets, it's 200,000. It's an exponential curve that kills your framerate.
+            You’ve seen it before: you add a few hundred units or projectiles to your scene, and suddenly the frame-time spikes. You open the Profiler, and there it is—a massive block of <strong>Physics.OverlapSphere</strong> or nested <strong>foreach</strong> loops.
         </p>
         
+        <p>
+            The culprit is <strong>$O(N^2)$ complexity</strong>. If every object checks every other object, your game will inevitably crawl to a halt.
+        </p>
+
         <blockquote>
-            "If you're checking every object against every other object, you're not writing a game; you're writing a benchmark."
+            <p>"If you're checking 1,000 objects against 1,000 objects, you're doing 1,000,000 checks per frame. A Spatial Hash turns that into a few dozen."</p>
         </blockquote>
 
-        <h2>The Solution: Spatial Partitioning</h2>
+        <h2>1. The Logic: Mapping Space to Memory</h2>
         <p>
-            Instead of checking everything, we only check objects that are <em>physically near each other</em>.
-        </p>
-        <p>
-            A <strong>Spatial Hash</strong> is the simplest way to do this. You divide your world into a grid of cells (like a chessboard). Each object is "registered" into the cell it occupies.
-        </p>
-        <p>
-            When you want to find nearby objects, you only look at the cell you're in and its immediate neighbors. 
+            The core idea is <strong>spatial partitioning</strong>. Instead of one giant list of objects, we divide the world into a grid. Each "cell" in the grid is a bucket that holds references to objects inside it.
         </p>
 
-        <div class="math">
-            CellX = floor(PosX / CellSize)<br>
-            CellY = floor(PosY / CellSize)<br>
-            CellZ = floor(PosZ / CellSize)
+        <div class="math-box">
+            <div class="formula">
+                Cell = floor(WorldPosition / CellSize)
+            </div>
         </div>
 
-        <h3>The "Hash" Part</h3>
         <p>
-            Why is it called a hash? Because we take those 3D coordinates (X, Y, Z) and combine them into a single integer <strong>Key</strong> that we can use as a dictionary index.
+            We take those 3D coordinates (X, Y, Z) and combine them into a single <strong>Key</strong>. This lets us use a <code>Dictionary&lt;int, List&lt;T&gt;&gt;</code> for $O(1)$ lookups.
         </p>
+
 <pre><code class="language-csharp">private int GetKey(Vector3 pos) {
     int x = Mathf.FloorToInt(pos.x / _cellSize);
     int y = Mathf.FloorToInt(pos.y / _cellSize);
     int z = Mathf.FloorToInt(pos.z / _cellSize);
     
-    // Combine into a single unique integer
+    // The "Hash" part: Combine coordinates into one integer
     unchecked {
         int hash = 17;
         hash = hash * 23 + x;
@@ -146,68 +167,84 @@
     }
 }</code></pre>
 
-        <h2>How it avoids GC (Garbage Collection)</h2>
+        <h2>2. Zero-Allocation (Avoiding GC)</h2>
         <p>
-            In Unity, memory allocation is the enemy. If you call <code>new List&lt;T&gt;()</code> every time you query the grid, you will create "Garbage" that the CPU has to clean up, causing "GC Spikes" (lag).
+            The biggest mistake developers make is returning a <code>new List&lt;T&gt;</code> from their query function. In Unity, this creates managed heap allocations that trigger the <strong>Garbage Collector</strong>, causing those annoying micro-stutters.
         </p>
-        
-        <h3>1. Pre-allocated Buffers</h3>
-        <p>
-            Don't let the function <em>return</em> a list. Instead, make the caller <em>provide</em> a list.
-        </p>
-<pre><code class="language-csharp">// BAD: Allocates a new list every call
-public List&lt;T&gt; Query(Vector3 pos) { 
-    return new List&lt;T&gt;(); 
-}
 
-// GOOD: Fills an existing list (Zero Allocation)
-public void Query(Vector3 pos, float radius, List&lt;T&gt; results) {
-    results.Clear(); // Reuse the memory already in the list
-    // Fill results...
+        <h3>The "Out List" Pattern</h3>
+        <p>
+            To keep it <strong>non-allocating</strong>, the function should never return a list. Instead, it should fill a list that the caller provides.
+        </p>
+
+<pre><code class="language-csharp">// The caller manages the memory. Zero garbage created.
+public void QueryRadius(Vector3 position, float radius, List&lt;T&gt; results) {
+    results.Clear(); // Reuse the same memory buffer
+    
+    // 1. Calculate the min/max cells the radius touches
+    // 2. Loop through those specific buckets
+    // 3. Add objects to the results list
 }</code></pre>
 
-        <h3>2. Dictionary Buckets</h3>
+        <h2>3. PurrNet & Network Interest</h2>
         <p>
-            We use a <code>Dictionary&lt;int, List&lt;T&gt;&gt;</code>. To avoid GC, we never "remove" the inner lists. We just clear them when the grid is empty. We also use <code>TryGet</code> to avoid throwing exceptions or creating new entries accidentally.
+            This isn't just for collisions. If you're using a transport like <strong>PurrNet</strong>, bandwidth is your most limited resource. You shouldn't sync a player’s rotation to someone who is 200 units away and behind a wall.
         </p>
 
-        <h3>3. Managed vs. Native</h3>
+        <h3>Interest Management (AOI)</h3>
         <p>
-            While the code in this repo is "Managed" (C#), you can go a step further with Unity's <strong>Job System</strong> and <strong>NativeMultiHashMap</strong>. That moves the data to the "Native" side where the Garbage Collector can't even see it. For most games, the Managed pattern with pooled lists is 99% of what you need.
+            By using a Spatial Hash, the server can efficiently determine which "Observers" are in range of a "Subject." 
         </p>
-
-        <h2>Real World Use Cases</h2>
-        
-        <h3>1. Network AOI (Area of Interest)</h3>
-        <p>
-            Whether using <strong>PurrNet</strong>, <strong>FishNet</strong>, or <strong>Mirror</strong>, you only want to sync players who are close to each other.
-        </p>
-        <p>
-            The Server puts everyone in a Spatial Hash. Every tick, it queries a 50m radius around each player. It only sends position updates for the entities found in that query. This saves 90% of your bandwidth.
-        </p>
-
-        <h3>2. Pathfinding Node Lookup</h3>
-        <p>
-            Finding the "closest node" on a 5,000-node graph is slow. If you hash the nodes, you just query the cell the player clicked in. It's instant.
-        </p>
-
-        <h2>Summary</h2>
-        <ul>
-            <li><strong>O(N²) is bad.</strong> Spatial hashing makes it close to O(1) or O(N).</li>
-            <li><strong>The Grid is king.</strong> Simple division maps space to memory.</li>
-            <li><strong>Reuse your lists.</strong> Don't <code>new</code> in the Update loop.</li>
+        <ul style="margin: 1.5rem 2rem; color: var(--text-dim);">
+            <li style="margin-bottom: 0.5rem"><strong>Subject:</strong> Updates the hash with its position.</li>
+            <li style="margin-bottom: 0.5rem"><strong>Server:</strong> Queries the hash at the Subject's position.</li>
+            <li style="margin-bottom: 0.5rem"><strong>Transport:</strong> Only sends packets to the specific IDs returned by the hash.</li>
         </ul>
-        
+
+        <div class="feature-grid">
+            <div class="feature">
+                <h4>PurrNet Synergy</h4>
+                <p>Plug the Spatial Hash into PurrNet's Observer system to handle massive player counts with minimal bandwidth.</p>
+            </div>
+            <div class="feature">
+                <h4>O(N) Collision</h4>
+                <p>Standard collision is O(N²). A hash makes it nearly O(N) by only checking local neighbors.</p>
+            </div>
+            <div class="feature">
+                <h4>AI Perception</h4>
+                <p>NPCs can "hear" or "see" objects in nearby cells without scanning every object in the scene.</p>
+            </div>
+            <div class="feature">
+                <h4>World Chunking</h4>
+                <p>Map your procedural chunks to the hash for instant loading/unloading based on player movement.</p>
+            </div>
+        </div>
+
+        <h2>4. Implementation Tips</h2>
+        <h3>Choosing Cell Size</h3>
         <p>
-            The code in the <a href="https://github.com/TrentSterling/spatialhash">GitHub Repo</a> is a clean, production-ready version of this pattern. Use it, break it, and optimize your game.
+            A common trap is choosing a cell size that is too small (too many empty buckets) or too large (too many objects per bucket). 
+            <strong>The Sweet Spot:</strong> Set <code>cellSize</code> to roughly 2x your average query radius.
+        </p>
+
+        <h3>Dynamic Updates</h3>
+        <p>
+            Don't re-hash every object every frame. Only call <code>Update()</code> if the object's <code>transform.hasChanged</code> or if it has moved a significant distance.
+        </p>
+
+        <p>
+            The source code in the repository includes a clean, production-ready <code>SpatialHash&lt;T&gt;</code> that handles all of this. It's generic, so you can use it for <code>Transform</code>, <code>NetworkIdentity</code>, or your own custom <code>Entity</code> classes.
         </p>
     </section>
 
     <footer>
-        <p>
-            Created by <a href="https://tront.xyz">Trent Sterling</a>. 
-            Come say hi on <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>.
-        </p>
+        <p>© 2026 Trent Sterling | spatialhash tutorial</p>
+        <div class="footer-links">
+            <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
+            <a href="https://github.com/TrentSterling">GitHub</a>
+            <a href="https://twitter.com/Trent_Sterling">Twitter</a>
+            <a href="https://blog.tront.xyz">Blog</a>
+        </div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
