@@ -425,7 +425,9 @@ struct SpatialQueryJob : IJobParallelFor {
             <!-- Game UI Overlays -->
             <div style="position: absolute; top: 30px; left: 30px; text-align: left; font-family: 'JetBrains Mono'; pointer-events: none;">
                 <div style="color: var(--accent); font-size: 1.5rem; font-weight: 900; letter-spacing: -0.05em;">PIXELS PICKED: <span id="gameScore">0</span></div>
-                <div style="color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; font-weight: 700;">SPATIAL HASH: <span id="gameStats" style="color: #fff;">ACTIVE (O(N))</span></div>
+                <div style="color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; font-weight: 700;">TOTAL PIXELS: <span id="pixelCount" style="color: #fff;">0</span></div>
+                <div style="color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; font-weight: 700;">AVG PER BUCKET: <span id="avgBucket" style="color: #fff;">0</span></div>
+                <div style="color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; font-weight: 700;">SPATIAL HASH: <span id="gameStats" style="color: #fff;">ACTIVE (O(N))</span></div>
             </div>
 
             <div id="gameOverlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: default; backdrop-filter: blur(10px);">
@@ -752,6 +754,14 @@ struct SpatialQueryJob : IJobParallelFor {
             gCtx.shadowBlur = 0;
             gCtx.strokeStyle = window.currentAccent; gCtx.setLineDash([5, 5]); gCtx.beginPath(); gCtx.arc(player.x, player.y, player.mag, 0, Math.PI*2); gCtx.stroke(); gCtx.setLineDash([]);
             gCtx.fillStyle = '#ff4444'; gCtx.shadowBlur = 20; gCtx.shadowColor = '#ff4444'; gCtx.fillRect(player.x-10, player.y-10, 20, 20); gCtx.shadowBlur = 0;
+
+            // Update live stats
+            document.getElementById('pixelCount').innerText = pixels.length.toLocaleString();
+            const bucketCount = spatialHash.grid.size;
+            const totalInHash = enemies.length + pixels.length;
+            const avg = bucketCount > 0 ? (totalInHash / bucketCount).toFixed(1) : 0;
+            document.getElementById('avgBucket').innerText = avg;
+
             requestAnimationFrame(loop);
         }
         gCanvas.addEventListener('mousemove', e => { const r = gCanvas.getBoundingClientRect(); player.x = e.clientX - r.left; player.y = e.clientY - r.top; });
