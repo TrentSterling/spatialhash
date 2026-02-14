@@ -18,7 +18,7 @@
 
     <style>
         :root {
-            /* Themes: Background, Surface, Text, TextDim, Accent, AccentMuted, AccentBG, Border */
+            /* OLED Gold (Default) */
             --bg: #000000;
             --surface: #0a0a0a;
             --surface-hover: #141414;
@@ -28,7 +28,7 @@
             --accent-muted: #9a6700;
             --accent-bg: rgba(255, 215, 0, 0.1);
             --border: #1f1f1f;
-            --link: var(--accent);
+            --nav-bg: rgba(0, 0, 0, 0.8);
         }
 
         [data-theme="cyber-neon"] {
@@ -40,17 +40,19 @@
             --accent-muted: #aa00aa;
             --accent-bg: rgba(255, 0, 255, 0.1);
             --border: #2a1a3a;
+            --nav-bg: rgba(5, 5, 5, 0.8);
         }
 
         [data-theme="pastel-dream"] {
             --bg: #fdf6ff;
             --surface: #ffffff;
-            --text: #4a3a5a;
-            --text-dim: #8a7a9a;
-            --accent: #ff7eb9;
-            --accent-muted: #d9669b;
-            --accent-bg: rgba(255, 126, 185, 0.1);
-            --border: #f0e0f5;
+            --text: #2d1b4d;
+            --text-dim: #6b5b8b;
+            --accent: #d946ef;
+            --accent-muted: #a21caf;
+            --accent-bg: rgba(217, 70, 239, 0.05);
+            --border: #e9d5ff;
+            --nav-bg: rgba(253, 246, 255, 0.8);
         }
 
         [data-theme="matrix"] {
@@ -62,17 +64,19 @@
             --accent-muted: #003b00;
             --accent-bg: rgba(0, 255, 65, 0.05);
             --border: #003b00;
+            --nav-bg: rgba(0, 0, 0, 0.8);
         }
 
         [data-theme="paper-light"] {
             --bg: #ffffff;
-            --surface: #f9f9f9;
-            --text: #111111;
-            --text-dim: #555555;
-            --accent: #0066cc;
-            --accent-muted: #004499;
-            --accent-bg: rgba(0, 102, 204, 0.05);
-            --border: #eeeeee;
+            --surface: #f8f9fa;
+            --text: #1a1a1b;
+            --text-dim: #4b5563;
+            --accent: #2563eb;
+            --accent-muted: #1d4ed8;
+            --accent-bg: rgba(37, 99, 235, 0.05);
+            --border: #e5e7eb;
+            --nav-bg: rgba(255, 255, 255, 0.8);
         }
 
         [data-theme="deep-slate"] {
@@ -84,65 +88,76 @@
             --accent-muted: #0ea5e9;
             --accent-bg: rgba(56, 189, 248, 0.1);
             --border: #334155;
+            --nav-bg: rgba(15, 23, 42, 0.8);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: all 0.3s ease; scroll-behavior: smooth; }
 
         /* Links */
-        a { color: var(--link); text-decoration: none; font-weight: 600; transition: color 0.2s; }
-        a:hover { color: var(--text); }
+        a { color: var(--accent); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        a:hover { color: var(--text); opacity: 0.8; }
 
         /* Theme Switcher */
         .theme-switcher { display: flex; gap: 0.4rem; align-items: center; background: var(--surface); padding: 0.4rem; border-radius: 99px; border: 1px solid var(--border); }
         .theme-btn { width: 18px; height: 18px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; position: relative; }
         .theme-btn:hover { transform: scale(1.2); }
         .theme-btn.active { border-color: var(--text); box-shadow: 0 0 10px var(--accent); }
-        .theme-btn::after { content: attr(title); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--surface); color: var(--text); font-size: 10px; padding: 2px 6px; border-radius: 4px; opacity: 0; pointer-events: none; transition: opacity 0.2s; white-space: nowrap; border: 1px solid var(--border); margin-bottom: 8px; }
-        .theme-btn:hover::after { opacity: 1; }
 
-        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; position: sticky; top: 0; background: var(--bg); z-index: 100; transition: background 0.3s; }
+        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; position: sticky; top: 0; background: var(--nav-bg); backdrop-filter: blur(12px); z-index: 100; transition: all 0.3s; }
         .nav-links { display: flex; gap: 2rem; }
         nav a { color: var(--text-dim); }
         nav a:hover { color: var(--accent); }
 
         h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1rem; color: var(--accent); transition: color 0.3s; }
-        h2 { font-size: 2rem; font-weight: 700; margin: 5rem 0 1.5rem; border-left: 4px solid var(--accent); padding-left: 1.5rem; letter-spacing: -0.02em; transition: border-color 0.3s; }
+        h2 { font-size: 2rem; font-weight: 700; margin: 5rem 0 1.5rem; border-left: 4px solid var(--accent); padding-left: 1.5rem; letter-spacing: -0.02em; transition: all 0.3s; }
         h3 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--accent-muted); transition: color 0.3s; }
         
-        p { margin-bottom: 1.5rem; font-size: 1.15rem; color: var(--text-dim); }
+        p { margin-bottom: 1.5rem; font-size: 1.15rem; color: var(--text-dim); transition: color 0.3s; }
         strong { color: var(--text); font-weight: 600; }
 
         .subtitle { font-size: 1.4rem; color: var(--text-dim); margin-bottom: 2rem; }
         .meta { display: flex; align-items: center; gap: 1rem; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 3rem; }
         .meta img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); transition: border-color 0.3s; }
 
-        code { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; background: var(--surface); color: var(--accent); padding: 0.2em 0.4em; border-radius: 4px; transition: color 0.3s; }
-        pre { background: var(--surface) !important; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin: 2rem 0; overflow-x: auto; position: relative; }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; background: var(--surface); color: var(--accent); padding: 0.2em 0.4em; border-radius: 4px; transition: all 0.3s; }
+        pre { background: var(--surface) !important; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin: 2rem 0; overflow-x: auto; position: relative; transition: all 0.3s; }
         pre::after { content: 'C#'; position: absolute; top: 0.5rem; right: 1rem; font-size: 0.7rem; color: var(--accent-muted); font-family: 'JetBrains Mono'; }
-        pre code { background: none !important; padding: 0 !important; font-size: 0.9em !important; }
+        pre code { background: none !important; padding: 0 !important; font-size: 0.9em !important; color: var(--text) !important; }
+
+        /* Chapter Navigation Bar */
+        .chapter-nav { 
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); 
+            z-index: 50; background: var(--surface); backdrop-filter: blur(12px); 
+            padding: 0.75rem 1.5rem; border: 1px solid var(--border); 
+            display: flex; align-items: center; gap: 1.5rem; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 99px;
+            transition: all 0.3s;
+        }
+        .chapter-nav a { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-dim); transition: color 0.2s; }
+        .chapter-nav a:hover { color: var(--accent); }
 
         /* Canvas Styles */
-        .visualizer-container { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 1.5rem; margin: 3rem 0; text-align: center; }
-        canvas { background: #050505; border-radius: 12px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; display: block; margin: 0 auto; }
+        .visualizer-container { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 1.5rem; margin: 3rem 0; text-align: center; transition: all 0.3s; }
+        canvas { background: var(--bg); border-radius: 12px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; display: block; margin: 0 auto; transition: background 0.3s, border-color 0.3s; }
         .vis-controls { margin-top: 1rem; color: var(--text-dim); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; font-family: 'JetBrains Mono'; }
 
-        .math-box { background: var(--accent-bg); border: 1px solid rgba(255, 215, 0, 0.2); padding: 2rem; border-radius: 16px; text-align: center; margin: 3rem 0; transition: background 0.3s; }
+        .math-box { background: var(--accent-bg); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; text-align: center; margin: 3rem 0; transition: all 0.3s; }
         .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--accent); transition: color 0.3s; }
 
         .feature-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 1.5rem; margin: 3rem 0; }
-        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; transition: all 0.2s; }
+        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; transition: all 0.3s; }
         .feature h4 { color: var(--accent); margin-bottom: 0.5rem; transition: color 0.3s; }
 
-        blockquote { background: var(--accent-bg); border-radius: 12px; padding: 2rem; margin: 3rem 0; border-left: 4px solid var(--accent); transition: background 0.3s, border-color 0.3s; }
+        blockquote { background: var(--accent-bg); border-radius: 12px; padding: 2rem; margin: 3rem 0; border-left: 4px solid var(--accent); transition: all 0.3s; }
         blockquote p { color: var(--text); font-style: italic; margin-bottom: 0; font-size: 1.25rem; }
 
-        .learning-step { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; }
-        .step-label { font-size: 0.7rem; font-weight: 800; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .learning-step { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; transition: all 0.3s; }
+        .step-label { font-size: 0.7rem; font-weight: 800; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; transition: color 0.3s; }
 
-        footer { margin-top: 8rem; padding: 4rem 0; border-top: 1px solid var(--border); text-align: center; }
+        footer { margin-top: 8rem; padding: 4rem 0; border-top: 1px solid var(--border); text-align: center; background: var(--surface); transition: all 0.3s; }
         .footer-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
-        .footer-links a { color: var(--accent-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .footer-links a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
         .footer-links a:hover { color: var(--accent); }
     </style>
 </head>
@@ -166,12 +181,12 @@
     </nav>
 
     <!-- Chapter Navigation -->
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 glass px-6 py-3 rounded-2xl border border-white/10 flex items-center gap-4 text-xs font-bold tracking-widest shadow-2xl">
-        <a href="#part1" class="hover:text-accent transition-colors">PART 1: FOUNDATIONS</a>
-        <div class="w-1 h-1 bg-border rounded-full"></div>
-        <a href="#part2" class="hover:text-accent transition-colors">PART 2: ARCHITECTURE</a>
-        <div class="w-1 h-1 bg-border rounded-full"></div>
-        <a href="#part3" class="hover:text-accent transition-colors text-gray-500">PART 3: JOBS & BURST</a>
+    <div class="chapter-nav">
+        <a href="#part1">PART 1: FOUNDATIONS</a>
+        <span style="color: var(--border)">|</span>
+        <a href="#part2">PART 2: ARCHITECTURE</a>
+        <span style="color: var(--border)">|</span>
+        <a href="#part3">PART 3: JOBS & BURST</a>
     </div>
 
     <header>
@@ -189,13 +204,13 @@
     <div id="part1">
         <div style="text-align: center; margin-bottom: 4rem;">
             <span class="step-label" style="font-size: 1rem;">PART ONE</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">The Foundations</h2>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">The Foundations</h2>
         </div>
 
         <!-- STEP 0: THE WEB OF DEATH -->
     <section id="step0">
         <div class="step-label">Step 0: The Brute Force Web</div>
-        <h2>The "Web of Death"</h2>
+        <h2 style="color: var(--text);">The "Web of Death"</h2>
         <p>In a standard collision system, every object checks every other object. This is <strong>O(N²)</strong>. With just 60 objects, the CPU is already choked by thousands of unnecessary checks.</p>
         
         <div class="visualizer-container">
@@ -216,7 +231,7 @@
     <!-- STEP 1 -->
     <section id="step1">
         <div class="step-label">Step 1: The Problem</div>
-        <h2>The $O(N^2)$ Trap</h2>
+        <h2 style="color: var(--text);">The $O(N^2)$ Trap</h2>
         <p>If you check every bullet against every enemy, you are checking 1,000 against 1,000. That is <strong>1,000,000 operations</strong> per frame. This is the bottleneck that kills most Unity games.</p>
         
         <div class="visualizer-container">
@@ -234,7 +249,7 @@
     <!-- STEP 2 -->
     <section id="step2">
         <div class="step-label">Step 2: The Grid</div>
-        <h2>Spatial Partitioning</h2>
+        <h2 style="color: var(--text);">Spatial Partitioning</h2>
         <p>By dividing the world into a grid (buckets), we only check objects in our immediate neighborhood. The mapping is a simple integer division.</p>
         
         <div class="math-box">
@@ -261,7 +276,7 @@
     <!-- STEP 3 -->
     <section id="step3">
         <div class="step-label">Step 3: Non-Allocating Memory</div>
-        <h2>Zero Garbage Optimization</h2>
+        <h2 style="color: var(--text);">Zero Garbage Optimization</h2>
         <p>In Unity, <code>new List&lt;T&gt;()</code> in an Update loop triggers the Garbage Collector. We solve this by <strong>Bucket Pooling</strong>.</p>
 
 <pre><code class="language-csharp">// Instead of discarding empty lists, we recycle them
@@ -283,15 +298,15 @@ private void RecycleList(List&lt;T&gt; list) {
     <div id="part2" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem;">
         <div style="text-align: center; margin-bottom: 4rem;">
             <span class="step-label" style="font-size: 1rem;">PART TWO</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">High-Performance Architecture</h2>
-            <p class="text-dim" style="max-width: 600px; margin: 1rem auto;">Moving beyond Dictionaries and Lists into the realm of cache-friendly memory layouts.</p>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">High-Performance Architecture</h2>
+            <p class="text-dim" style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">Moving beyond Dictionaries and Lists into the realm of cache-friendly memory layouts.</p>
         </div>
 
                 <!-- STEP 4 -->
                 <section id="step4">
                     <div class="step-label">Step 4: The Pro Level</div>
-                    <h2>Flattened Arrays & Prefix Sums</h2>
-                    <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" style="color:var(--accent)" target="_blank">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries and Lists entirely. We use <strong>Flat Arrays</strong>.</p>
+                    <h2 style="color: var(--text);">Flattened Arrays & Prefix Sums</h2>
+                    <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" target="_blank">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries and Lists entirely. We use <strong>Flat Arrays</strong>.</p>
                     
                     <div class="feature-grid">
                         <div class="feature">
@@ -305,7 +320,7 @@ private void RecycleList(List&lt;T&gt; list) {
                     </div>
         
                     <div class="learning-step">
-                        <h3 style="margin-top:0;">The Müller Pattern: Linear Memory</h3>
+                        <h3 style="margin-top:0; color: var(--text);">The Müller Pattern: Linear Memory</h3>
                         <p>The secret is <strong>Spatial Sorting</strong>. By re-ordering your actual particles in memory so that particles in the same cell are adjacent, you achieve <strong>Cache Locality</strong>.</p>
                         
                         <ul style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-type: square;">
@@ -316,24 +331,37 @@ private void RecycleList(List&lt;T&gt; list) {
                     </div>
         
         <pre><code class="language-csharp">// The Müller / GPU Pattern
-        NativeArray&lt;int&gt; cellStart;  // Starting index in particle array
-        NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices sorted by CellID
-        
-        // Querying becomes a simple loop over a slice of a flat array:
-        for (int i = cellStart[cellID]; i < cellStart[cellID + 1]; i++) {
-            int particleIndex = particles[i];
-            // Fast, contiguous access!
-        }</code></pre>
+NativeArray&lt;int&gt; cellStart;  // Starting index in particle array
+NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices sorted by CellID
+
+// Querying becomes a simple loop over a slice of a flat array:
+for (int i = cellStart[cellID]; i < cellStart[cellID + 1]; i++) {
+    int particleIndex = particles[i];
+    // Fast, contiguous access!
+}</code></pre>
                 </section>
-            <!-- PART 3 -->
-    ... (Part 3 content) ...
+    <!-- PART 3 -->
+    <div id="part3" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem; opacity: 0.6;">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <span class="step-label" style="font-size: 1rem;">PART THREE</span>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">Jobs, Burst & Native</h2>
+            <p class="text-dim" style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">Taking the Spatial Hash to the extreme using Unity's C# Job System and Native Containers.</p>
+        </div>
+
+        <section>
+            <div class="math-box" style="background: rgba(255,255,255,0.05); border-style: dashed;">
+                <p style="color: var(--accent); font-weight: 800; letter-spacing: 0.2em; margin-bottom: 0;">ADVANCED SECTION: UNDER CONSTRUCTION</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-dim);">We'll be diving into <code>NativeMultiHashMap</code>, Parallel Writing, and Burst-compiled query kernels in the next update.</p>
+            </div>
+        </section>
+    </div>
 
     <!-- PART 4: THE GRAND FINALE -->
     <div id="part4" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem;">
         <div style="text-align: center; margin-bottom: 4rem;">
             <span class="step-label" style="font-size: 1rem;">THE GRAND FINALE</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">Pixel Purge Arena</h2>
-            <p class="text-dim" style="max-width: 600px; margin: 1rem auto;">A playable stress-test. Hundreds of enemies and thousands of "pixels" using the Spatial Hash for collisions and magnet collection.</p>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">Pixel Purge Arena</h2>
+            <p class="text-dim" style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">A playable stress-test. Hundreds of enemies and thousands of "pixels" using the Spatial Hash for collisions and magnet collection.</p>
         </div>
 
         <div class="visualizer-container" style="background: #000; padding: 0; overflow: hidden; position: relative; border-color: var(--accent);">
@@ -345,17 +373,17 @@ private void RecycleList(List&lt;T&gt; list) {
                 <div style="color: var(--text-dim); font-size: 0.7rem; margin-top: 4px;">SPATIAL HASH: <span id="gameStats" style="color: #fff;">ACTIVE</span></div>
             </div>
 
-            <div id="gameOverlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-column: column; align-items: center; justify-content: center; text-align: center; cursor: default;">
+            <div id="gameOverlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: default;">
                 <div>
                     <h3 style="color: var(--accent); font-size: 2rem; margin-bottom: 1rem;">READY TO PURGE?</h3>
-                    <p style="margin-bottom: 2rem; font-size: 0.9rem;">Move mouse to steer. Auto-shooting enabled.</p>
+                    <p style="margin-bottom: 2rem; font-size: 0.9rem; color: #fff;">Move mouse to steer. Auto-shooting enabled.</p>
                     <button onclick="startGame()" style="background: var(--accent); color: black; border: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: transform 0.2s;">START ENGINE</button>
                 </div>
             </div>
         </div>
 
         <div class="learning-step" style="margin-top: 4rem;">
-            <h3>How it's using the Hash:</h3>
+            <h3 style="color: var(--text);">How it's using the Hash:</h3>
             <ul style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-type: square;">
                 <li style="margin-bottom:0.5rem"><strong>Magnet System:</strong> The ship queries a 120px radius in the hash to find pixels. It only pulls what's in range, ignoring thousands of distant particles.</li>
                 <li style="margin-bottom:0.5rem"><strong>Bullet Physics:</strong> Each bullet queries its local cell to find enemies to damage.</li>
@@ -367,7 +395,7 @@ private void RecycleList(List&lt;T&gt; list) {
     <!-- PAYOFF -->
     <section id="payoff">
         <div class="step-label">The Payoff</div>
-        <h2>Real-World Applications</h2>
+        <h2 style="color: var(--text);">Real-World Applications</h2>
         
         <div class="feature-grid">
             <div class="feature">
@@ -382,10 +410,11 @@ private void RecycleList(List&lt;T&gt; list) {
     </section>
 
     <footer>
-        <p>© 2026 Trent Sterling | spatialhash deep dive</p>
+        <p>© 2026 Trent Sterling | spatialhash masterclass</p>
         <div class="footer-links">
             <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
             <a href="https://github.com/TrentSterling">GitHub</a>
+            <a href="https://twitter.com/Trent_Sterling">Twitter</a>
             <a href="https://blog.tront.xyz">Blog</a>
         </div>
     </footer>
