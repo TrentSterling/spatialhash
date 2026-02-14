@@ -10,36 +10,75 @@
 
     <style>
         :root {
+            /* Default: Trent's Premium Gold/OLED Palette */
             --bg: #000000;
             --surface: #0a0a0a;
             --surface-hover: #141414;
             --text: #ffffff;
             --text-dim: #a3a3a3;
-            --gold: #FFD700;
-            --gold-muted: #9a6700;
-            --gold-bg: rgba(255, 215, 0, 0.1);
+            --accent: #FFD700;
+            --accent-muted: #9a6700;
+            --accent-bg: rgba(255, 215, 0, 0.1);
             --border: #1f1f1f;
         }
 
+        [data-theme="cyber"] {
+            --accent: #00f2ff;
+            --accent-muted: #008188;
+            --accent-bg: rgba(0, 242, 255, 0.1);
+        }
+
+        [data-theme="emerald"] {
+            --accent: #10b981;
+            --accent-muted: #065f46;
+            --accent-bg: rgba(16, 185, 129, 0.1);
+        }
+
+        [data-theme="rose"] {
+            --accent: #f43f5e;
+            --accent-muted: #9f1239;
+            --accent-bg: rgba(244, 63, 94, 0.1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: background 0.3s ease; }
 
-        nav { display: flex; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+        /* Theme Switcher */
+        .theme-switcher {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .theme-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .theme-btn:hover { transform: scale(1.2); }
+        .theme-btn.active { border-color: white; }
+
+        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+        .nav-links { display: flex; gap: 2rem; }
         nav a { color: var(--text-dim); text-decoration: none; transition: all 0.2s; }
-        nav a:hover { color: var(--gold); }
+        nav a:hover { color: var(--accent); }
 
-        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 1rem; color: var(--gold); }
-        h2 { font-size: 2rem; font-weight: 700; margin: 4rem 0 1.5rem; border-left: 4px solid var(--gold); padding-left: 1.5rem; letter-spacing: -0.02em; }
-        h3 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--gold-muted); }
+        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 1rem; color: var(--accent); transition: color 0.3s; }
+        h2 { font-size: 2rem; font-weight: 700; margin: 4rem 0 1.5rem; border-left: 4px solid var(--accent); padding-left: 1.5rem; letter-spacing: -0.02em; transition: border-color 0.3s; }
+        h3 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--accent-muted); transition: color 0.3s; }
+        
         p { margin-bottom: 1.5rem; font-size: 1.15rem; color: var(--text-dim); }
         strong { color: var(--text); font-weight: 600; }
 
         .subtitle { font-size: 1.4rem; color: var(--text-dim); margin-bottom: 2rem; }
         .meta { display: flex; align-items: center; gap: 1rem; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 3rem; }
-        .meta img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--gold); }
+        .meta img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); transition: border-color 0.3s; }
 
-        code { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; background: var(--surface); color: var(--gold); padding: 0.2em 0.4em; border-radius: 4px; }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; background: var(--surface); color: var(--accent); padding: 0.2em 0.4em; border-radius: 4px; transition: color 0.3s; }
         pre { background: var(--surface) !important; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin: 2rem 0; overflow-x: auto; position: relative; }
+        pre::after { content: 'C#'; position: absolute; top: 0.5rem; right: 1rem; font-size: 0.7rem; color: var(--accent-muted); font-family: 'JetBrains Mono'; }
         pre code { background: none !important; padding: 0 !important; font-size: 0.9em !important; }
 
         /* Canvas Styles */
@@ -47,27 +86,38 @@
         canvas { background: #050505; border-radius: 12px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; }
         .vis-controls { margin-top: 1rem; color: var(--text-dim); font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; }
 
-        .math-box { background: var(--gold-bg); border: 1px solid rgba(255, 215, 0, 0.2); padding: 2rem; border-radius: 16px; text-align: center; margin: 3rem 0; }
-        .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--gold); }
+        .math-box { background: var(--accent-bg); border: 1px solid rgba(255, 215, 0, 0.2); padding: 2rem; border-radius: 16px; text-align: center; margin: 3rem 0; transition: background 0.3s; }
+        .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--accent); transition: color 0.3s; }
 
         .feature-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 1.5rem; margin: 3rem 0; }
-        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; }
-        .feature h4 { color: var(--gold); margin-bottom: 0.5rem; }
+        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; transition: all 0.2s; }
+        .feature h4 { color: var(--accent); margin-bottom: 0.5rem; transition: color 0.3s; }
+
+        blockquote { background: var(--accent-bg); border-radius: 12px; padding: 2rem; margin: 3rem 0; border-left: 4px solid var(--accent); transition: background 0.3s, border-color 0.3s; }
+        blockquote p { color: var(--text); font-style: italic; margin-bottom: 0; font-size: 1.25rem; }
 
         footer { margin-top: 8rem; padding: 4rem 0; border-top: 1px solid var(--border); text-align: center; }
         .footer-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
-        .footer-links a { color: var(--gold-muted); text-decoration: none; font-size: 0.9rem; }
-
-        @media (max-width: 768px) { h1 { font-size: 2.5rem; } .feature-grid { grid-template-cols: 1fr; } }
+        .footer-links a { color: var(--accent-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--accent); }
     </style>
 </head>
-<body>
+<body data-theme="gold">
 
     <nav>
-        <a href="https://tront.xyz">Home</a>
-        <a href="https://blog.tront.xyz">Blog</a>
-        <a href="https://github.com/TrentSterling/spatialhash">GitHub</a>
-        <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
+        <div class="nav-links">
+            <a href="https://tront.xyz">Home</a>
+            <a href="https://blog.tront.xyz">Blog</a>
+            <a href="https://github.com/TrentSterling/spatialhash">GitHub</a>
+            <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
+        </div>
+        <div class="theme-switcher">
+            <span style="font-size: 0.7rem; color: var(--text-dim); margin-right: 0.5rem; letter-spacing: 0.1em;">THEME</span>
+            <div class="theme-btn active" style="background: #FFD700;" onclick="setTheme('gold', this)"></div>
+            <div class="theme-btn" style="background: #00f2ff;" onclick="setTheme('cyber', this)"></div>
+            <div class="theme-btn" style="background: #10b981;" onclick="setTheme('emerald', this)"></div>
+            <div class="theme-btn" style="background: #f43f5e;" onclick="setTheme('rose', this)"></div>
+        </div>
     </nav>
 
     <header>
@@ -193,6 +243,16 @@ private void RecycleList(List&lt;T&gt; list) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
 
     <script>
+        function setTheme(theme, btn) {
+            document.body.setAttribute('data-theme', theme);
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update global accent for canvas
+            const style = getComputedStyle(document.body);
+            window.currentAccent = style.getPropertyValue('--accent').trim();
+        }
+
         const canvas = document.getElementById('hashVis');
         const ctx = canvas.getContext('2d');
         const cellSize = 50;
@@ -201,6 +261,8 @@ private void RecycleList(List&lt;T&gt; list) {
         let mouseY = 250;
         const objects = [];
         const numObjects = 200;
+
+        window.currentAccent = '#FFD700';
 
         // Initialize random objects
         for (let i = 0; i < numObjects; i++) {
@@ -231,7 +293,7 @@ private void RecycleList(List&lt;T&gt; list) {
             }
 
             // Highlight Active Cells
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
+            ctx.fillStyle = window.currentAccent + '1A'; // 1A is ~10% opacity in hex
             for (let x = gridX - range; x <= gridX + range; x++) {
                 for (let y = gridY - range; y <= gridY + range; y++) {
                     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
@@ -249,14 +311,14 @@ private void RecycleList(List&lt;T&gt; list) {
                 
                 if (isChecked) checks++;
 
-                ctx.fillStyle = isChecked ? '#FFD700' : '#333';
+                ctx.fillStyle = isChecked ? window.currentAccent : '#333';
                 ctx.beginPath();
                 ctx.arc(obj.x, obj.y, isChecked ? 3 : 2, 0, Math.PI * 2);
                 ctx.fill();
             });
 
             // Draw Player & Radius
-            ctx.strokeStyle = '#FFD700';
+            ctx.strokeStyle = window.currentAccent;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
