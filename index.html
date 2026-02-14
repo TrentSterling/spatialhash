@@ -234,45 +234,81 @@ private void RecycleList(List&lt;T&gt; list) {
             <p class="text-dim" style="max-width: 600px; margin: 1rem auto;">Moving beyond Dictionaries and Lists into the realm of cache-friendly memory layouts.</p>
         </div>
 
-        <!-- STEP 4 -->
-        <section id="step4">
-            <div class="step-label">Step 4: The Pro Level</div>
-            <h2>Flattened Arrays & Prefix Sums</h2>
-        <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" style="color:var(--accent)">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries and Lists entirely. We use <strong>Flat Arrays</strong>.</p>
+                <!-- STEP 4 -->
+                <section id="step4">
+                    <div class="step-label">Step 4: The Pro Level</div>
+                    <h2>Flattened Arrays & Prefix Sums</h2>
+                    <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" style="color:var(--accent)" target="_blank">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries and Lists entirely. We use <strong>Flat Arrays</strong>.</p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature">
+                            <h4>1. Counting Sort</h4>
+                            <p>Instead of adding objects to lists, we just count how many objects are in each cell. This is a single pass over your data.</p>
+                        </div>
+                        <div class="feature">
+                            <h4>2. Prefix Sum (The Map)</h4>
+                            <p>By accumulating those counts, we create a <code>cellStart</code> array. This tells us exactly where each cell's data begins in a contiguous block of memory.</p>
+                        </div>
+                    </div>
         
-        <div class="feature-grid">
-            <div class="feature">
-                <h4>1. Counting Sort</h4>
-                <p>Count how many particles are in each cell. No lists, just an array of integers.</p>
-            </div>
-            <div class="feature">
-                <h4>2. Prefix Sum</h4>
-                <p>Compute <code>cellStart</code> by accumulating counts. This gives you the exact offset for every cell in memory.</p>
-            </div>
-        </div>
+                    <div class="learning-step">
+                        <h3 style="margin-top:0;">The Müller Pattern: Linear Memory</h3>
+                        <p>The secret is <strong>Spatial Sorting</strong>. By re-ordering your actual particles in memory so that particles in the same cell are adjacent, you achieve <strong>Cache Locality</strong>.</p>
+                        
+                        <ul style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-type: square;">
+                            <li style="margin-bottom:0.5rem"><strong>No Pointers:</strong> The CPU doesn't have to "jump" around memory to follow List references.</li>
+                            <li style="margin-bottom:0.5rem"><strong>Prefetching:</strong> The CPU sees you reading particles in a straight line and pre-loads the next ones into the cache before you even ask for them.</li>
+                            <li style="margin-bottom:0.5rem"><strong>Burst Friendly:</strong> This layout is 100% compatible with Unity's Burst compiler, turning C# into optimized machine code.</li>
+                        </ul>
+                    </div>
+        
+        <pre><code class="language-csharp">// The Müller / GPU Pattern
+        NativeArray&lt;int&gt; cellStart;  // Starting index in particle array
+        NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices sorted by CellID
+        
+        // Querying becomes a simple loop over a slice of a flat array:
+        for (int i = cellStart[cellID]; i < cellStart[cellID + 1]; i++) {
+            int particleIndex = particles[i];
+            // Fast, contiguous access!
+        }</code></pre>
+                </section>
+            <!-- PART 3 -->
+    ... (Part 3 content) ...
 
-        <p>This approach is <strong>GPU-friendly</strong> and works perfectly with Unity's <strong>Burst Compiler</strong> and <strong>Job System</strong>. It ensures <strong>cache locality</strong>—the CPU reads data in a straight line instead of jumping around memory.</p>
-
-<pre><code class="language-csharp">// The Matthias Müller / GPU Pattern
-NativeArray&lt;int&gt; cellStart;  // Starting index in particle array
-NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices
-// No Dictionaries. No Lists. Just raw, fast memory.</code></pre>
-    </section>
-
-    <!-- PART 3 -->
-    <div id="part3" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem; opacity: 0.6;">
+    <!-- PART 4: THE GRAND FINALE -->
+    <div id="part4" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem;">
         <div style="text-align: center; margin-bottom: 4rem;">
-            <span class="step-label" style="font-size: 1rem;">PART THREE</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">Jobs, Burst & Native</h2>
-            <p class="text-dim" style="max-width: 600px; margin: 1rem auto;">Taking the Spatial Hash to the extreme using Unity's C# Job System and Native Containers.</p>
+            <span class="step-label" style="font-size: 1rem;">THE GRAND FINALE</span>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">Pixel Purge Arena</h2>
+            <p class="text-dim" style="max-width: 600px; margin: 1rem auto;">A playable stress-test. Hundreds of enemies and thousands of "pixels" using the Spatial Hash for collisions and magnet collection.</p>
         </div>
 
-        <section>
-            <div class="math-box" style="background: rgba(255,255,255,0.05); border-style: dashed;">
-                <p style="color: var(--accent); font-weight: 800; letter-spacing: 0.2em; margin-bottom: 0;">ADVANCED SECTION: UNDER CONSTRUCTION</p>
-                <p style="font-size: 0.9rem; margin-top: 0.5rem;">We'll be diving into <code>NativeMultiHashMap</code>, Parallel Writing, and Burst-compiled query kernels in the next update.</p>
+        <div class="visualizer-container" style="background: #000; padding: 0; overflow: hidden; position: relative; border-color: var(--accent);">
+            <canvas id="gameCanvas" width="800" height="600" style="cursor: none;"></canvas>
+            
+            <!-- Game UI Overlays -->
+            <div style="position: absolute; top: 20px; left: 20px; text-align: left; font-family: 'JetBrains Mono'; pointer-events: none;">
+                <div style="color: var(--accent); font-size: 1.2rem; font-weight: 800;">PIXELS: <span id="gameScore">0</span></div>
+                <div style="color: var(--text-dim); font-size: 0.7rem; margin-top: 4px;">SPATIAL HASH: <span id="gameStats" style="color: #fff;">ACTIVE</span></div>
             </div>
-        </section>
+
+            <div id="gameOverlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-column: column; align-items: center; justify-content: center; text-align: center; cursor: default;">
+                <div>
+                    <h3 style="color: var(--accent); font-size: 2rem; margin-bottom: 1rem;">READY TO PURGE?</h3>
+                    <p style="margin-bottom: 2rem; font-size: 0.9rem;">Move mouse to steer. Auto-shooting enabled.</p>
+                    <button onclick="startGame()" style="background: var(--accent); color: black; border: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: transform 0.2s;">START ENGINE</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="learning-step" style="margin-top: 4rem;">
+            <h3>How it's using the Hash:</h3>
+            <ul style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-type: square;">
+                <li style="margin-bottom:0.5rem"><strong>Magnet System:</strong> The ship queries a 120px radius in the hash to find pixels. It only pulls what's in range, ignoring thousands of distant particles.</li>
+                <li style="margin-bottom:0.5rem"><strong>Bullet Physics:</strong> Each bullet queries its local cell to find enemies to damage.</li>
+                <li style="margin-bottom:0.5rem"><strong>Zero Lag:</strong> Even with 500+ items moving at once, the CPU is only performing a handful of checks per entity.</li>
+            </ul>
+        </div>
     </div>
 
     <!-- PAYOFF -->
@@ -376,7 +412,7 @@ NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices
                     if(shouldCheck) {
                         checks++;
                         ctxWeb.strokeStyle = webMode === 'brute' ? 'rgba(255,68,68,0.1)' : window.currentAccent + '44';
-                        ctxWeb.beginPath(); ctxWeb.moveTo(d1.x, d1.y); ctx.lineTo(d2.x, d2.y);
+                        ctxWeb.beginPath(); ctxWeb.moveTo(d1.x, d1.y); ctxWeb.lineTo(d2.x, d2.y);
                         ctxWeb.stroke();
                     }
                 }
@@ -485,6 +521,187 @@ NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices
             requestAnimationFrame(draw2);
         }
         draw2();
+
+        // --- PART 4: PIXEL PURGE GAME ---
+        const gCanvas = document.getElementById('gameCanvas');
+        const gCtx = gCanvas.getContext('2d');
+        let gameRunning = false;
+        let score = 0;
+
+        class GameHash {
+            constructor(size) {
+                this.size = size;
+                this.grid = new Map();
+            }
+            clear() { this.grid.clear(); }
+            insert(obj) {
+                const k = `${Math.floor(obj.x/this.size)},${Math.floor(obj.y/this.size)}`;
+                if(!this.grid.has(k)) this.grid.set(k, []);
+                this.grid.get(k).push(obj);
+            }
+            query(x, y, rad, results) {
+                const gX = Math.floor(x/this.size);
+                const gY = Math.floor(y/this.size);
+                const r = Math.ceil(rad/this.size);
+                for(let ix=gX-r; ix<=gX+r; ix++) {
+                    for(let iy=gY-r; iy<=gY+r; iy++) {
+                        const cell = this.grid.get(`${ix},${iy}`);
+                        if(cell) {
+                            for(let i=0; i<cell.length; i++) {
+                                const dX = cell[i].x - x;
+                                const dY = cell[i].y - y;
+                                if(dX*dX + dY*dY <= rad*rad) results.push(cell[i]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        const spatialHash = new GameHash(40);
+        const player = { x: 400, y: 300, r: 15, mag: 120 };
+        const bullets = [];
+        const enemies = [];
+        const pixels = [];
+        let frame = 0;
+
+        window.startGame = () => {
+            document.getElementById('gameOverlay').style.display = 'none';
+            gameRunning = true;
+            loop();
+        };
+
+        function loop() {
+            if(!gameRunning) return;
+            frame++;
+            
+            // 1. Update Entities
+            const rect = gCanvas.getBoundingClientRect();
+            // Mouse follower (simple player lerp)
+            // Note: mouse listener is shared from page level
+            
+            // Auto shoot
+            if(frame % 10 === 0) bullets.push({ x: player.x, y: player.y, vx: 0, vy: -7, r: 4 });
+
+            // Spawn enemies
+            if(frame % 60 === 0) {
+                const side = Math.floor(Math.random()*4);
+                let ex, ey;
+                if(side === 0) { ex = Math.random()*800; ey = -20; }
+                else if(side === 1) { ex = 820; ey = Math.random()*600; }
+                else if(side === 2) { ex = Math.random()*800; ey = 620; }
+                else { ex = -20; ey = Math.random()*600; }
+                enemies.push({ x: ex, y: ey, hp: 3, r: 12 });
+            }
+
+            // Move Bullets
+            for(let i=bullets.length-1; i>=0; i--) {
+                bullets[i].y += bullets[i].vy;
+                if(bullets[i].y < -50) bullets.splice(i, 1);
+            }
+
+            // Move Enemies (simple seek)
+            enemies.forEach(e => {
+                const dx = player.x - e.x;
+                const dy = player.y - e.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                e.x += (dx/dist) * 1.5;
+                e.y += (dy/dist) * 1.5;
+            });
+
+            // Rebuild Hash for dynamic collisions
+            spatialHash.clear();
+            enemies.forEach(e => spatialHash.insert(e));
+            pixels.forEach(p => spatialHash.insert(p));
+
+            // 2. Resolve Collisions using Hash
+            // Bullets vs Enemies
+            bullets.forEach((b, bIdx) => {
+                const hits = [];
+                spatialHash.query(b.x, b.y, b.r + 10, hits);
+                hits.forEach(h => {
+                    if(enemies.includes(h)) {
+                        h.hp--;
+                        bullets.splice(bIdx, 1);
+                        if(h.hp <= 0) {
+                            // Explosion into pixels!
+                            for(let k=0; k<15; k++) pixels.push({ 
+                                x: h.x, y: h.y, 
+                                vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4,
+                                active: false 
+                            });
+                            enemies.splice(enemies.indexOf(h), 1);
+                        }
+                    }
+                });
+            });
+
+            // Player Magnet vs Pixels
+            const pulled = [];
+            spatialHash.query(player.x, player.y, player.mag, pulled);
+            pulled.forEach(p => {
+                if(pixels.includes(p)) {
+                    p.active = true;
+                    const dx = player.x - p.x;
+                    const dy = player.y - p.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    p.vx += (dx/dist) * 0.5;
+                    p.vy += (dy/dist) * 0.5;
+                    
+                    if(dist < 15) {
+                        pixels.splice(pixels.indexOf(p), 1);
+                        score++;
+                        document.getElementById('gameScore').innerText = score;
+                    }
+                }
+            });
+
+            // Move Pixels
+            pixels.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                p.vx *= 0.98; p.vy *= 0.98; // Friction
+            });
+
+            // 3. Render
+            gCtx.fillStyle = '#000';
+            gCtx.fillRect(0,0,800,600);
+
+            // Draw Hash Grid (Subtle)
+            gCtx.strokeStyle = '#111';
+            for(let x=0; x<800; x+=40) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,600); gCtx.stroke(); }
+            for(let y=0; y<600; y+=40) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(800,y); gCtx.stroke(); }
+
+            // Draw Entities
+            pixels.forEach(p => {
+                gCtx.fillStyle = p.active ? window.currentAccent : '#333';
+                gCtx.fillRect(p.x-1, p.y-1, 2, 2);
+            });
+            enemies.forEach(e => {
+                gCtx.strokeStyle = '#ff4444';
+                gCtx.lineWidth = 2;
+                gCtx.strokeRect(e.x-10, e.y-10, 20, 20);
+            });
+            bullets.forEach(b => {
+                gCtx.fillStyle = window.currentAccent;
+                gCtx.beginPath(); gCtx.arc(b.x, b.y, b.r, 0, Math.PI*2); gCtx.fill();
+            });
+
+            // Draw Player
+            gCtx.strokeStyle = window.currentAccent;
+            gCtx.setLineDash([5, 5]);
+            gCtx.beginPath(); gCtx.arc(player.x, player.y, player.mag, 0, Math.PI*2); gCtx.stroke();
+            gCtx.setLineDash([]);
+            gCtx.fillStyle = '#ff4444';
+            gCtx.fillRect(player.x-10, player.y-10, 20, 20);
+
+            requestAnimationFrame(loop);
+        }
+
+        gCanvas.addEventListener('mousemove', e => {
+            const r = gCanvas.getBoundingClientRect();
+            player.x = e.clientX - r.left;
+            player.y = e.clientY - r.top;
+        });
     </script>
 </body>
 </html>
