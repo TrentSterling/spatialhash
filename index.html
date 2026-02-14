@@ -612,15 +612,15 @@ private void RecycleList(List&lt;T&gt; list) {
                 }
             }
 
-            // Spawn enemies
-            if(frame % 50 === 0) {
+            // Spawn enemies faster
+            if(frame % 20 === 0) {
                 const side = Math.floor(Math.random()*4);
                 let ex, ey;
                 if(side === 0) { ex = Math.random()*800; ey = -20; }
                 else if(side === 1) { ex = 820; ey = Math.random()*600; }
                 else if(side === 2) { ex = Math.random()*800; ey = 620; }
                 else { ex = -20; ey = Math.random()*600; }
-                enemies.push({ x: ex, y: ey, hp: 3, r: 12 });
+                enemies.push({ x: ex, y: ey, hp: 1, r: 12 });
             }
 
             // Move Bullets
@@ -642,32 +642,25 @@ private void RecycleList(List&lt;T&gt; list) {
             });
 
             // 2. Resolve Collisions using Hash
-            // Bullets vs Enemies
-            for (let i = bullets.length - 1; i >= 0; i--) {
-                const b = bullets[i];
+            // Bullets vs Enemies (PIERCING)
+            bullets.forEach(b => {
                 const hits = [];
-                spatialHash.query(b.x, b.y, b.r + 10, hits);
-                let hitEnemy = false;
-                for (let h of hits) {
+                spatialHash.query(b.x, b.y, b.r + 15, hits);
+                hits.forEach(h => {
                     if(enemies.includes(h)) {
-                        h.hp--;
-                        hitEnemy = true;
-                        if(h.hp <= 0) {
-                            for(let k=0; k<12; k++) {
-                                pixels.push({ 
-                                    x: h.x, y: h.y, 
-                                    vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
-                                    active: false,
-                                    color: `hsl(${Math.random() * 360}, 70%, 60%)`
-                                });
-                            }
-                            enemies.splice(enemies.indexOf(h), 1);
+                        // Instant kill + massive pixel drop
+                        for(let k=0; k<30; k++) {
+                            pixels.push({ 
+                                x: h.x, y: h.y, 
+                                vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6,
+                                active: false,
+                                color: `hsl(${Math.random() * 360}, 70%, 60%)`
+                            });
                         }
-                        break;
+                        enemies.splice(enemies.indexOf(h), 1);
                     }
-                }
-                if (hitEnemy) bullets.splice(i, 1);
-            }
+                });
+            });
 
             // Player Magnet vs Pixels
             const pulled = [];
