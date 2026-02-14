@@ -190,7 +190,7 @@
         }
     </style>
 </head>
-<body data-theme="gold">
+<body data-theme="deep-slate">
 
     <nav>
         <div class="nav-links">
@@ -200,12 +200,12 @@
             <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
         </div>
         <div class="theme-switcher">
-            <div class="theme-btn active" style="background: #FFD700;" onclick="setTheme('gold', this)" title="OLED Gold"></div>
+            <div class="theme-btn" style="background: #FFD700;" onclick="setTheme('gold', this)" title="OLED Gold"></div>
             <div class="theme-btn" style="background: #ff00ff;" onclick="setTheme('cyber-neon', this)" title="Cyber Neon"></div>
             <div class="theme-btn" style="background: #ff7eb9;" onclick="setTheme('pastel-dream', this)" title="Pastel Dream"></div>
             <div class="theme-btn" style="background: #00ff41;" onclick="setTheme('matrix', this)" title="Matrix"></div>
             <div class="theme-btn" style="background: #0066cc;" onclick="setTheme('paper-light', this)" title="Paper Light"></div>
-            <div class="theme-btn" style="background: #38bdf8;" onclick="setTheme('deep-slate', this)" title="Deep Slate"></div>
+            <div class="theme-btn active" style="background: #38bdf8;" onclick="setTheme('deep-slate', this)" title="Deep Slate"></div>
         </div>
     </nav>
 
@@ -436,7 +436,7 @@ struct SpatialQueryJob : IJobParallelFor {
             <p style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">Pixel Pickup: A real-time stress test.</p>
         </div>
 
-        <div class="visualizer-container" style="background: #000; padding: 0; overflow: hidden; position: relative; border-color: var(--accent); border-width: 2px;">
+        <div class="visualizer-container" style="background: var(--bg); padding: 0; overflow: hidden; position: relative; border-color: var(--accent); border-width: 2px;">
             <canvas id="gameCanvas" width="800" height="600" style="cursor: none;"></canvas>
             
             <!-- Game UI Overlays -->
@@ -521,7 +521,7 @@ struct SpatialQueryJob : IJobParallelFor {
 
         // Load saved theme
         window.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('spatialhash-theme') || 'gold';
+            const savedTheme = localStorage.getItem('spatialhash-theme') || 'deep-slate';
             setTheme(savedTheme, null);
         });
 
