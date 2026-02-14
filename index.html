@@ -495,14 +495,28 @@ struct SpatialQueryJob : IJobParallelFor {
 
         function setTheme(theme, btn) {
             document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('spatialhash-theme', theme);
+            
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                const activeBtn = document.querySelector(`.theme-btn[title="${theme}"], .theme-btn[onclick*="'${theme}'"]`);
+                if (activeBtn) activeBtn.classList.add('active');
+            }
+
             const style = getComputedStyle(document.body);
             window.currentAccent = style.getPropertyValue('--accent').trim();
             window.currentBg = style.getPropertyValue('--bg').trim();
             window.currentText = style.getPropertyValue('--text').trim();
             window.isLight = (theme === 'paper-light' || theme === 'pastel-dream');
         }
+
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('spatialhash-theme') || 'gold';
+            setTheme(savedTheme, null);
+        });
 
         // --- Visualizer 0: The Web ---
         const vWeb = document.getElementById('visWeb');
