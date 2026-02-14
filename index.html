@@ -656,17 +656,18 @@ struct SpatialQueryJob : IJobParallelFor {
         const gCtx = gCanvas.getContext('2d');
         let gameRunning = false; let score = 0;
         class GameHash {
-            constructor(size) { this.size = size; this.grid = new Map(); this.activeCells = new Set(); }
+            constructor(size) { this.size = size; this.grid = new Map(); this.activeCells = new Map(); }
             clear() { this.grid.clear(); this.activeCells.clear(); }
             insert(obj) {
                 const k = `${Math.floor(obj.x/this.size)},${Math.floor(obj.y/this.size)}`;
                 if(!this.grid.has(k)) this.grid.set(k, []);
                 this.grid.get(k).push(obj);
             }
-            query(x, y, rad, results) {
+            query(x, y, rad, results, type = 'default') {
                 const gX = Math.floor(x/this.size); const gY = Math.floor(y/this.size); const r = Math.ceil(rad/this.size);
                 for(let ix=gX-r; ix<=gX+r; ix++) for(let iy=gY-r; iy<=gY+r; iy++) {
-                    const key = `${ix},${iy}`; this.activeCells.add(key);
+                    const key = `${ix},${iy}`;
+                    if (!this.activeCells.has(key) || type === 'combat') this.activeCells.set(key, type);
                     const cell = this.grid.get(key);
                     if(cell) for(let i=0; i<cell.length; i++) {
                         const dX = cell[i].x - x; const dY = cell[i].y - y;
@@ -683,7 +684,7 @@ struct SpatialQueryJob : IJobParallelFor {
             spatialHash.clear(); enemies.forEach(e => spatialHash.insert(e)); pixels.forEach(p => spatialHash.insert(p));
             
             if(frame % 6 === 0) {
-                const targets = []; spatialHash.query(player.x, player.y, 500, targets);
+                const targets = []; spatialHash.query(player.x, player.y, 500, targets, 'targeting');
                 let nearest = null; let minDist = Infinity;
                 targets.forEach(t => { if(enemies.includes(t)) { const d = Math.sqrt((t.x-player.x)**2+(t.y-player.y)**2); if(d<minDist){minDist=d; nearest=t;} } });
                 if(nearest) {
@@ -706,7 +707,7 @@ struct SpatialQueryJob : IJobParallelFor {
                 e.x += (dx/dist)*2.2; e.y += (dy/dist)*2.2;
             });
             bullets.forEach(b => {
-                const hits = []; spatialHash.query(b.x, b.y, b.r + 20, hits);
+                const hits = []; spatialHash.query(b.x, b.y, b.r + 20, hits, 'combat');
                 hits.forEach(h => {
                     if(enemies.includes(h)) {
                         for(let k=0; k<25; k++) pixels.push({ x: h.x, y: h.y, vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, active: false, color: `hsl(${Math.random()*360}, 70%, 60%)` });
@@ -714,7 +715,7 @@ struct SpatialQueryJob : IJobParallelFor {
                     }
                 });
             });
-            const pulled = []; spatialHash.query(player.x, player.y, player.mag, pulled);
+            const pulled = []; spatialHash.query(player.x, player.y, player.mag, pulled, 'magnet');
             pulled.forEach(p => {
                 if(pixels.includes(p)) {
                     p.active = true; const dx = player.x-p.x; const dy = player.y-p.y; const dist = Math.sqrt(dx*dx+dy*dy);
@@ -727,11 +728,18 @@ struct SpatialQueryJob : IJobParallelFor {
             gCtx.strokeStyle = '#050505';
             for(let x=0; x<800; x+=40) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,600); gCtx.stroke(); }
             for(let y=0; y<600; y+=40) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(800,y); gCtx.stroke(); }
-            gCtx.fillStyle = window.currentAccent + '15';
-            spatialHash.activeCells.forEach(key => {
+            
+            // Draw Active Cells with type-specific colors
+            spatialHash.activeCells.forEach((type, key) => {
                 const [cx, cy] = key.split(',').map(Number);
+                let color = window.currentAccent;
+                if (type === 'combat') color = '#ff4444';
+                else if (type === 'targeting') color = '#00f2ff';
+                
+                gCtx.fillStyle = color + '15';
                 gCtx.fillRect(cx*spatialHash.size, cy*spatialHash.size, spatialHash.size, spatialHash.size);
-                gCtx.strokeStyle = window.currentAccent + '22'; gCtx.strokeRect(cx*spatialHash.size, cy*spatialHash.size, spatialHash.size, spatialHash.size);
+                gCtx.strokeStyle = color + '22';
+                gCtx.strokeRect(cx*spatialHash.size, cy*spatialHash.size, spatialHash.size, spatialHash.size);
             });
             pixels.forEach(p => {
                 if(p.active) { gCtx.fillStyle = `hsl(${(frame*15)%360}, 100%, 70%)`; gCtx.shadowBlur = 8; gCtx.shadowColor = gCtx.fillStyle; }
