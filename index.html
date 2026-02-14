@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Art of Spatial Hashing | Trent Sterling</title>
+    <title>Spatial Hashing Masterclass | Trent Sterling</title>
     
     <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="The Art of Spatial Hashing | Trent Sterling">
-    <meta property="og:description" content="A visual and technical deep-dive into high-performance spatial partitioning for Unity. Optimization from O(N²) to million-particle performance.">
+    <meta property="og:title" content="Spatial Hashing Masterclass | Trent Sterling">
+    <meta property="og:description" content="A visual and technical deep-dive into high-performance spatial partitioning for Unity. From O(N²) to million-particle performance.">
     <meta property="og:image" content="https://github.com/TrentSterling/spatialhash/raw/master/spatialhash_preview.png">
     <meta property="og:url" content="http://tront.xyz/spatialhash/">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#FFD700">
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 
     <style>
@@ -92,7 +92,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: all 0.3s ease; scroll-behavior: smooth; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 1000px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: all 0.3s ease; scroll-behavior: smooth; }
 
         /* Links */
         a { color: var(--accent); text-decoration: none; font-weight: 600; transition: color 0.2s; }
@@ -109,56 +109,68 @@
         nav a { color: var(--text-dim); }
         nav a:hover { color: var(--accent); }
 
-        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1rem; color: var(--accent); transition: color 0.3s; }
-        h2 { font-size: 2rem; font-weight: 700; margin: 5rem 0 1.5rem; border-left: 4px solid var(--accent); padding-left: 1.5rem; letter-spacing: -0.02em; transition: all 0.3s; }
-        h3 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--accent-muted); transition: color 0.3s; }
+        h1 { font-size: 4rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1rem; color: var(--accent); transition: color 0.3s; }
+        h2 { font-size: 2.5rem; font-weight: 700; margin: 5rem 0 1.5rem; border-left: 6px solid var(--accent); padding-left: 1.5rem; letter-spacing: -0.02em; transition: all 0.3s; color: var(--text); }
+        h3 { font-size: 1.6rem; font-weight: 600; margin: 3rem 0 1.25rem; color: var(--accent-muted); transition: color 0.3s; }
         
-        p { margin-bottom: 1.5rem; font-size: 1.15rem; color: var(--text-dim); transition: color 0.3s; }
-        strong { color: var(--text); font-weight: 600; }
+        p { margin-bottom: 1.5rem; font-size: 1.2rem; color: var(--text-dim); transition: color 0.3s; }
+        strong { color: var(--text); font-weight: 700; }
 
-        .subtitle { font-size: 1.4rem; color: var(--text-dim); margin-bottom: 2rem; }
-        .meta { display: flex; align-items: center; gap: 1rem; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 3rem; }
-        .meta img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); transition: border-color 0.3s; }
+        .subtitle { font-size: 1.6rem; color: var(--text-dim); margin-bottom: 3rem; font-weight: 400; max-width: 800px; }
+        .meta { display: flex; align-items: center; gap: 1.5rem; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 4rem; }
+        .meta img { width: 48px; height: 42px; border-radius: 12px; border: 1px solid var(--accent); transition: border-color 0.3s; }
 
         code { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; background: var(--surface); color: var(--accent); padding: 0.2em 0.4em; border-radius: 4px; transition: all 0.3s; }
-        pre { background: var(--surface) !important; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin: 2rem 0; overflow-x: auto; position: relative; transition: all 0.3s; }
-        pre::after { content: 'C#'; position: absolute; top: 0.5rem; right: 1rem; font-size: 0.7rem; color: var(--accent-muted); font-family: 'JetBrains Mono'; }
-        pre code { background: none !important; padding: 0 !important; font-size: 0.9em !important; color: var(--text) !important; }
+        pre { background: var(--surface) !important; padding: 2.5rem; border-radius: 16px; border: 1px solid var(--border); margin: 2.5rem 0; overflow-x: auto; position: relative; transition: all 0.3s; }
+        pre::after { content: 'C#'; position: absolute; top: 0.75rem; right: 1.25rem; font-size: 0.75rem; color: var(--accent-muted); font-family: 'JetBrains Mono'; font-weight: 700; }
+        pre code { background: none !important; padding: 0 !important; font-size: 0.95em !important; color: var(--text) !important; }
 
         /* Chapter Navigation Bar */
         .chapter-nav { 
             position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); 
-            z-index: 50; background: var(--surface); backdrop-filter: blur(12px); 
-            padding: 0.75rem 1.5rem; border: 1px solid var(--border); 
-            display: flex; align-items: center; gap: 1.5rem; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-radius: 99px;
+            z-index: 50; background: var(--surface); backdrop-filter: blur(16px); 
+            padding: 1rem 2rem; border: 1px solid var(--border); 
+            display: flex; align-items: center; gap: 2rem; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); border-radius: 99px;
             transition: all 0.3s;
         }
-        .chapter-nav a { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-dim); transition: color 0.2s; }
-        .chapter-nav a:hover { color: var(--accent); }
+        .chapter-nav a { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.15em; color: var(--text-dim); transition: all 0.2s; }
+        .chapter-nav a:hover { color: var(--accent); transform: translateY(-1px); }
 
         /* Canvas Styles */
-        .visualizer-container { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 1.5rem; margin: 3rem 0; text-align: center; transition: all 0.3s; }
-        canvas { background: var(--bg); border-radius: 12px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; display: block; margin: 0 auto; transition: background 0.3s, border-color 0.3s; }
-        .vis-controls { margin-top: 1rem; color: var(--text-dim); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; font-family: 'JetBrains Mono'; }
+        .visualizer-container { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 2rem; margin: 4rem 0; text-align: center; transition: all 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        canvas { background: var(--bg); border-radius: 16px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; display: block; margin: 0 auto; transition: background 0.3s, border-color 0.3s; }
+        .vis-controls { margin-top: 1.5rem; color: var(--text-dim); font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; font-family: 'JetBrains Mono'; }
 
-        .math-box { background: var(--accent-bg); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; text-align: center; margin: 3rem 0; transition: all 0.3s; }
-        .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--accent); transition: color 0.3s; }
+        .math-box { background: var(--accent-bg); border: 1px solid var(--border); padding: 2.5rem; border-radius: 20px; text-align: center; margin: 4rem 0; transition: all 0.3s; }
+        .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; color: var(--accent); transition: color 0.3s; font-weight: 700; }
 
-        .feature-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 1.5rem; margin: 3rem 0; }
-        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; transition: all 0.3s; }
-        .feature h4 { color: var(--accent); margin-bottom: 0.5rem; transition: color 0.3s; }
+        .feature-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 2rem; margin: 4rem 0; }
+        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2.5rem; border-radius: 20px; transition: all 0.3s; }
+        .feature h4 { color: var(--accent); margin-bottom: 0.75rem; font-size: 1.25rem; transition: color 0.3s; font-weight: 800; }
 
-        blockquote { background: var(--accent-bg); border-radius: 12px; padding: 2rem; margin: 3rem 0; border-left: 4px solid var(--accent); transition: all 0.3s; }
-        blockquote p { color: var(--text); font-style: italic; margin-bottom: 0; font-size: 1.25rem; }
+        blockquote { background: var(--accent-bg); border-radius: 16px; padding: 2.5rem; margin: 4rem 0; border-left: 6px solid var(--accent); transition: all 0.3s; }
+        blockquote p { color: var(--text); font-style: italic; margin-bottom: 0; font-size: 1.4rem; font-weight: 500; }
 
-        .learning-step { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; transition: all 0.3s; }
-        .step-label { font-size: 0.7rem; font-weight: 800; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; transition: color 0.3s; }
+        .learning-step { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 3rem; margin-bottom: 3rem; transition: all 0.3s; }
+        .step-label { font-size: 0.8rem; font-weight: 900; color: var(--accent); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 0.75rem; transition: color 0.3s; display: block; }
 
-        footer { margin-top: 8rem; padding: 4rem 0; border-top: 1px solid var(--border); text-align: center; background: var(--surface); transition: all 0.3s; }
-        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
-        .footer-links a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .part-header { text-align: center; margin: 12rem 0 6rem; padding-top: 6rem; border-top: 1px solid var(--border); }
+        .part-title { font-size: 4.5rem; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 1rem; color: var(--text); line-height: 1; }
+
+        footer { margin-top: 12rem; padding: 6rem 0; border-top: 1px solid var(--border); text-align: center; background: var(--surface); transition: all 0.3s; }
+        .footer-links { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; }
+        .footer-links a { color: var(--text-dim); text-decoration: none; font-size: 1rem; transition: color 0.2s; font-weight: 700; }
         .footer-links a:hover { color: var(--accent); }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .part-title { font-size: 3rem; }
+            .feature-grid { grid-template-cols: 1fr; }
+            body { padding-top: 2rem; }
+            .chapter-nav { width: 90%; gap: 1rem; padding: 0.75rem 1rem; }
+            .chapter-nav a { font-size: 0.6rem; }
+        }
     </style>
 </head>
 <body data-theme="gold">
@@ -182,104 +194,120 @@
 
     <!-- Chapter Navigation -->
     <div class="chapter-nav">
-        <a href="#part1">PART 1: FOUNDATIONS</a>
+        <a href="#part1">PART 1: CORE</a>
         <span style="color: var(--border)">|</span>
-        <a href="#part2">PART 2: ARCHITECTURE</a>
+        <a href="#part2">PART 2: MEMORY</a>
         <span style="color: var(--border)">|</span>
-        <a href="#part3">PART 3: JOBS & BURST</a>
+        <a href="#part3">PART 3: PRO</a>
+        <span style="color: var(--border)">|</span>
+        <a href="#part4">PART 4: EXTREME</a>
+        <span style="color: var(--border)">|</span>
+        <a href="#part5">PART 5: GAME</a>
     </div>
 
     <header>
         <h1>Spatial Hashing <br/>Masterclass.</h1>
-        <p class="subtitle">From $O(N^2)$ brute force to million-particle performance in Unity.</p>
+        <p class="subtitle">Architecting O(1) performance for Unity games. A deep dive from brute-force chaos to million-particle optimization.</p>
         <div class="meta">
             <img src="https://github.com/TrentSterling.png" alt="Trent Sterling">
             <span>By <strong>Trent Sterling</strong></span>
             <span>•</span>
-            <span style="color: var(--accent)">Multi-Part Series</span>
+            <span>Feb 14, 2026</span>
+            <span>•</span>
+            <span style="color: var(--accent); font-weight: 800;">High-Performance Technical Series</span>
         </div>
     </header>
 
-    <!-- PART 1 -->
+    <!-- PART 1: THE CORE CONCEPT -->
     <div id="part1">
-        <div style="text-align: center; margin-bottom: 4rem;">
-            <span class="step-label" style="font-size: 1rem;">PART ONE</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">The Foundations</h2>
+        <div class="part-header">
+            <span class="step-label">PART ONE</span>
+            <h2 class="part-title">The Core Concept</h2>
+            <p style="max-width: 600px; margin: 1rem auto;">Understanding the geometry of optimization.</p>
         </div>
 
-        <!-- STEP 0: THE WEB OF DEATH -->
-    <section id="step0">
-        <div class="step-label">Step 0: The Brute Force Web</div>
-        <h2 style="color: var(--text);">The "Web of Death"</h2>
-        <p>In a standard collision system, every object checks every other object. This is <strong>O(N²)</strong>. With just 60 objects, the CPU is already choked by thousands of unnecessary checks.</p>
-        
-        <div class="visualizer-container">
-            <div style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 2rem;">
-                <button onclick="window.setWebMode('brute')" id="btnBrute" class="bg-red-900/20 border border-red-500/50 text-red-500 px-4 py-1 rounded-full text-xs font-bold">BRUTE FORCE</button>
-                <button onclick="window.setWebMode('hash')" id="btnHash" class="bg-gray-900 border border-gray-800 text-gray-500 px-4 py-1 rounded-full text-xs font-bold">SPATIAL HASH</button>
+        <section id="step0">
+            <div class="step-label">Step 0: The Web of Death</div>
+            <h2>The Brute Force Nightmare</h2>
+            <p>In a standard, naive collision or proximity system, every object checks every other object. This is <strong>O(N²)</strong> complexity. At small scales, it's fine. At game-scale, it's a death sentence.</p>
+            
+            <div class="visualizer-container">
+                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 2rem;">
+                    <button onclick="window.setWebMode('brute')" id="btnBrute" class="bg-red-900/20 border border-red-500/50 text-red-500 px-6 py-2 rounded-full text-xs font-black tracking-widest">BRUTE FORCE</button>
+                    <button onclick="window.setWebMode('hash')" id="btnHash" class="bg-gray-900 border border-gray-800 text-gray-500 px-6 py-2 rounded-full text-xs font-black tracking-widest transition-all">SPATIAL HASH</button>
+                </div>
+                <canvas id="visWeb" width="800" height="400"></canvas>
+                <div class="vis-controls">
+                    <span>Active Checks: <strong id="webChecks" style="color:#ff4444">1,770</strong></span>
+                    <span id="webComplexity" style="color:#ff4444; font-weight: 800;">O(N²) COMPLEXITY</span>
+                </div>
             </div>
-            <canvas id="visWeb" width="800" height="400"></canvas>
-            <div class="vis-controls">
-                <span>Objects: 60</span>
-                <span>Active Checks: <strong id="webChecks" style="color:#ff4444">1,770</strong></span>
-                <span id="webComplexity" style="color:#ff4444">Complexity: O(N²)</span>
+            <p>Toggle the <strong>Spatial Hash</strong> mode above. Watch the lines collapse. By only checking objects in the same "neighborhood," we reduce the workload from thousands of checks to a handful of clustered tests.</p>
+        </section>
+
+        <section id="step1">
+            <div class="step-label">Step 1: The O(N²) Trap</div>
+            <h2>Visualization of Proximity</h2>
+            <p>Imagine 1,000 bullets and 100 enemies. A brute-force system doesn't care if a bullet is 1,000 meters away; it still runs the distance math. <strong>Spatial Hashing</strong> filters out the irrelevant noise before the math even starts.</p>
+            
+            <div class="visualizer-container">
+                <canvas id="vis1" width="800" height="400"></canvas>
+                <div class="vis-controls">
+                    <span>Point Cloud: 150 Units</span>
+                    <span>Narrow-Phase Filter: <strong style="color:var(--accent)">ACTIVE</strong></span>
+                </div>
             </div>
+        </section>
+
+        <section id="step2">
+            <div class="step-label">Step 2: Spatial Partitioning</div>
+            <h2>The Grid Strategy</h2>
+            <p>By dividing the world into a fixed grid of "buckets," we can map any 3D coordinate to a specific bucket in constant time. This is the foundation of almost every modern physics engine.</p>
+            
+            <div class="math-box">
+                <div class="formula">Cell = floor(Position / CellSize)</div>
+            </div>
+
+            <div class="visualizer-container">
+                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1.5rem;">
+                    <label for="cellSize2" style="font-size: 0.8rem; font-weight: 900; color: var(--accent); letter-spacing: 0.1em;">GRID SCALE:</label>
+                    <input type="range" id="cellSize2" min="20" max="200" value="60" style="width: 200px; accent-color: var(--accent);">
+                    <span id="cellSizeVal2" style="font-family: 'JetBrains Mono'; color: var(--accent); font-weight: 700;">60</span>
+                </div>
+                <canvas id="vis2" width="800" height="400"></canvas>
+                <div class="vis-controls">
+                    <span>AABBs: 150</span>
+                    <span>Hash Lookups: <strong id="checkCount2">0</strong></span>
+                    <span style="color: var(--accent); font-weight: 800;">Optimization: <strong id="savings2">0%</strong></span>
+                </div>
+            </div>
+            <p>Tuning the <strong>Cell Size</strong> is critical. If cells are too small, objects span many buckets. If they are too large, we check too many irrelevant objects. The goal is to maximize the <strong>Optimization %</strong> shown above.</p>
+        </section>
+    </div>
+
+    <!-- PART 2: MEMORY & EFFICIENCY -->
+    <div id="part2">
+        <div class="part-header">
+            <span class="step-label">PART TWO</span>
+            <h2 class="part-title">Memory & Efficiency</h2>
+            <p style="max-width: 600px; margin: 1rem auto;">Solving the Garbage Collection nightmare in Unity.</p>
         </div>
-        <p>Toggle the <strong>Spatial Hash</strong> button. Notice how the "web" collapses into small, local clusters. The CPU only works on what actually matters.</p>
-    </section>
 
-    <!-- STEP 1 -->
-    <section id="step1">
-        <div class="step-label">Step 1: The Problem</div>
-        <h2 style="color: var(--text);">The $O(N^2)$ Trap</h2>
-        <p>If you check every bullet against every enemy, you are checking 1,000 against 1,000. That is <strong>1,000,000 operations</strong> per frame. This is the bottleneck that kills most Unity games.</p>
-        
-        <div class="visualizer-container">
-            <canvas id="vis1" width="800" height="400"></canvas>
-            <div class="vis-controls">
-                <span>Brute Force: 150 vs 150</span>
-                <span>Checks: <strong style="color:#ff4444">22,500</strong></span>
-                <span>Complexity: <strong style="color:#ff4444">O(N²)</strong></span>
+        <section id="step3">
+            <div class="step-label">Step 3: Zero-GC Patterns</div>
+            <h2>Bucket Pooling</h2>
+            <p>In C#, calling <code>new List&lt;T&gt;()</code> in an Update loop creates "Garbage." When Unity's Garbage Collector runs to clean this up, your game stutters. We solve this by <strong>recycling memory</strong>.</p>
+
+            <div class="learning-step">
+                <h3>The Lifecycle of a Pooled Bucket</h3>
+                <ol style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-type: decimal;">
+                    <li style="margin-bottom:0.75rem"><strong>Request:</strong> When an object enters a new cell, we grab a list from a <code>Stack&lt;List&lt;T&gt;&gt;</code>.</li>
+                    <li style="margin-bottom:0.75rem"><strong>Recycle:</strong> When a cell becomes empty, we <code>Clear()</code> the list and push it back onto the stack.</li>
+                    <li style="margin-bottom:0.75rem"><strong>Result:</strong> Zero allocations. Smooth frames.</li>
+                </ol>
             </div>
-        </div>
 
-        <p>In this simple point cloud, a brute force search checks <strong>every single dot</strong>. It doesn't matter if the dot is across the screen; the CPU still does the math. We need to filter by <strong>proximity</strong> first.</p>
-    </section>
-
-    <!-- STEP 2 -->
-    <section id="step2">
-        <div class="step-label">Step 2: The Grid</div>
-        <h2 style="color: var(--text);">Spatial Partitioning</h2>
-        <p>By dividing the world into a grid (buckets), we only check objects in our immediate neighborhood. The mapping is a simple integer division.</p>
-        
-        <div class="math-box">
-            <div class="formula">Cell = floor(Position / CellSize)</div>
-        </div>
-
-        <div class="visualizer-container">
-            <div style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 1rem;">
-                <label for="cellSize2" style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">CELL SIZE:</label>
-                <input type="range" id="cellSize2" min="20" max="200" value="60" style="width: 200px; accent-color: var(--accent);">
-                <span id="cellSizeVal2" style="font-family: 'JetBrains Mono'; color: var(--accent);">60</span>
-            </div>
-            <canvas id="vis2" width="800" height="400"></canvas>
-            <div class="vis-controls">
-                <span>AABBs: 150</span>
-                <span>Narrow-Phase Checks: <strong id="checkCount2">0</strong></span>
-                <span style="color: var(--accent)">Savings: <strong id="savings2">0%</strong></span>
-            </div>
-        </div>
-
-        <p>The grid allows us to skip 80-90% of all calculations. We only bother with objects in the <strong>active cells</strong>.</p>
-    </section>
-
-    <!-- STEP 3 -->
-    <section id="step3">
-        <div class="step-label">Step 3: Non-Allocating Memory</div>
-        <h2 style="color: var(--text);">Zero Garbage Optimization</h2>
-        <p>In Unity, <code>new List&lt;T&gt;()</code> in an Update loop triggers the Garbage Collector. We solve this by <strong>Bucket Pooling</strong>.</p>
-
-<pre><code class="language-csharp">// Instead of discarding empty lists, we recycle them
+<pre><code class="language-csharp">// The internal pooling logic
 private Stack&lt;List&lt;T&gt;&gt; _pool = new();
 
 private List&lt;T&gt; GetNewList() {
@@ -287,124 +315,147 @@ private List&lt;T&gt; GetNewList() {
 }
 
 private void RecycleList(List&lt;T&gt; list) {
-    list.Clear();
+    list.Clear(); // Critical: keep the capacity, dump the items
     _pool.Push(list);
 }</code></pre>
+        </section>
 
-        <p>By using a <strong>Stack pool</strong> for internal lists and an <strong>"Out List" pattern</strong> for queries, we can achieve millions of proximity checks with <strong>zero heap allocations</strong>.</p>
-    </section>
-
-    <!-- PART 2 -->
-    <div id="part2" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem;">
-        <div style="text-align: center; margin-bottom: 4rem;">
-            <span class="step-label" style="font-size: 1rem;">PART TWO</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">High-Performance Architecture</h2>
-            <p class="text-dim" style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">Moving beyond Dictionaries and Lists into the realm of cache-friendly memory layouts.</p>
-        </div>
-
-                <!-- STEP 4 -->
-                <section id="step4">
-                    <div class="step-label">Step 4: The Pro Level</div>
-                    <h2 style="color: var(--text);">Flattened Arrays & Prefix Sums</h2>
-                    <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" target="_blank">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries and Lists entirely. We use <strong>Flat Arrays</strong>.</p>
-                    
-                    <div class="feature-grid">
-                        <div class="feature">
-                            <h4>1. Counting Sort</h4>
-                            <p>Instead of adding objects to lists, we just count how many objects are in each cell. This is a single pass over your data.</p>
-                        </div>
-                        <div class="feature">
-                            <h4>2. Prefix Sum (The Map)</h4>
-                            <p>By accumulating those counts, we create a <code>cellStart</code> array. This tells us exactly where each cell's data begins in a contiguous block of memory.</p>
-                        </div>
-                    </div>
-        
-                    <div class="learning-step">
-                        <h3 style="margin-top:0; color: var(--text);">The Müller Pattern: Linear Memory</h3>
-                        <p>The secret is <strong>Spatial Sorting</strong>. By re-ordering your actual particles in memory so that particles in the same cell are adjacent, you achieve <strong>Cache Locality</strong>.</p>
-                        
-                        <ul style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-type: square;">
-                            <li style="margin-bottom:0.5rem"><strong>No Pointers:</strong> The CPU doesn't have to "jump" around memory to follow List references.</li>
-                            <li style="margin-bottom:0.5rem"><strong>Prefetching:</strong> The CPU sees you reading particles in a straight line and pre-loads the next ones into the cache before you even ask for them.</li>
-                            <li style="margin-bottom:0.5rem"><strong>Burst Friendly:</strong> This layout is 100% compatible with Unity's Burst compiler, turning C# into optimized machine code.</li>
-                        </ul>
-                    </div>
-        
-        <pre><code class="language-csharp">// The Müller / GPU Pattern
-NativeArray&lt;int&gt; cellStart;  // Starting index in particle array
-NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices sorted by CellID
-
-// Querying becomes a simple loop over a slice of a flat array:
-for (int i = cellStart[cellID]; i < cellStart[cellID + 1]; i++) {
-    int particleIndex = particles[i];
-    // Fast, contiguous access!
-}</code></pre>
-                </section>
-    <!-- PART 3 -->
-    <div id="part3" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem; opacity: 0.6;">
-        <div style="text-align: center; margin-bottom: 4rem;">
-            <span class="step-label" style="font-size: 1rem;">PART THREE</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">Jobs, Burst & Native</h2>
-            <p class="text-dim" style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">Taking the Spatial Hash to the extreme using Unity's C# Job System and Native Containers.</p>
-        </div>
-
-        <section>
-            <div class="math-box" style="background: rgba(255,255,255,0.05); border-style: dashed;">
-                <p style="color: var(--accent); font-weight: 800; letter-spacing: 0.2em; margin-bottom: 0;">ADVANCED SECTION: UNDER CONSTRUCTION</p>
-                <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-dim);">We'll be diving into <code>NativeMultiHashMap</code>, Parallel Writing, and Burst-compiled query kernels in the next update.</p>
+        <section id="density">
+            <div class="step-label">Visualizer: Bucket Density</div>
+            <h2>The Density Heatmap</h2>
+            <p>Watch how the hash populates buckets in real-time. The intensity of the color represents how many entities are fighting for attention in that specific memory address.</p>
+            
+            <div class="visualizer-container">
+                <canvas id="visDensity" width="800" height="400"></canvas>
+                <div class="vis-controls">
+                    <span>Entities: 200</span>
+                    <span>Max Bucket Depth: <strong id="maxDepth" style="color:var(--accent)">0</strong></span>
+                </div>
             </div>
         </section>
     </div>
 
-    <!-- PART 4: THE GRAND FINALE -->
-    <div id="part4" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem;">
-        <div style="text-align: center; margin-bottom: 4rem;">
-            <span class="step-label" style="font-size: 1rem;">THE GRAND FINALE</span>
-            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem; color: var(--text);">Pixel Purge Arena</h2>
-            <p class="text-dim" style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">A playable stress-test. Hundreds of enemies and thousands of "pixels" using the Spatial Hash for collisions and magnet collection.</p>
+    <!-- PART 3: PROFESSIONAL GRADE -->
+    <div id="part3">
+        <div class="part-header">
+            <span class="step-label">PART THREE</span>
+            <h2 class="part-title">Professional Grade</h2>
+            <p style="max-width: 600px; margin: 1rem auto;">Data-Oriented Design and Cache Locality.</p>
         </div>
 
-        <div class="visualizer-container" style="background: #000; padding: 0; overflow: hidden; position: relative; border-color: var(--accent);">
+        <section id="step4">
+            <div class="step-label">Step 4: The Müller Pattern</div>
+            <h2>Flattened Arrays & Prefix Sums</h2>
+            <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" target="_blank">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries entirely. We move to <strong>Flat Arrays</strong>.</p>
+            
+            <div class="feature-grid">
+                <div class="feature">
+                    <h4>1. Count Phase</h4>
+                    <p>Iterate all objects once to count how many fall into each cell. No allocations, just integer increments.</p>
+                </div>
+                <div class="feature">
+                    <h4>2. Prefix Sum Phase</h4>
+                    <p>Calculate starting offsets for every cell. This creates a "Map" of contiguous memory for your objects.</p>
+                </div>
+            </div>
+
+            <div class="learning-step">
+                <h3 style="margin-top:0; color: var(--text);">Why this wins? Cache Locality.</h3>
+                <p>When you use <code>List&lt;T&gt;</code>, your data is scattered across RAM. The CPU has to "jump" around to find it. When you use <strong>Spatial Sorting</strong>, your data is lined up perfectly. The CPU pre-fetches the data before you even ask for it.</p>
+            </div>
+
+<pre><code class="language-csharp">// Contiguous memory structure
+NativeArray&lt;int&gt; cellStart;  // Offsets into the object array
+NativeArray&lt;int&gt; sortedObjects; // Objects sorted by their CellID
+
+// Reading a cell is now a single, contiguous memory sweep:
+int start = cellStart[cellID];
+int end = cellStart[cellID + 1];
+for (int i = start; i < end; i++) {
+    Process(sortedObjects[i]); // Ultra-fast!
+}</code></pre>
+        </section>
+    </div>
+
+    <!-- PART 4: UNITY EXTREME -->
+    <div id="part4">
+        <div class="part-header">
+            <span class="step-label">PART FOUR</span>
+            <h2 class="part-title">Unity Extreme</h2>
+            <p style="max-width: 600px; margin: 1rem auto;">Burst, Jobs, and Parallel Power.</p>
+        </div>
+
+        <section>
+            <div class="step-label">Parallel Architecture</div>
+            <h2>Burst & Job System</h2>
+            <p>Spatial hashing is <strong>embarrassingly parallel</strong>. By using Unity's <code>NativeMultiHashMap</code> and the <strong>Burst Compiler</strong>, you can move these checks off the main thread and into high-speed C++ level machine code.</p>
+
+            <div class="feature-grid">
+                <div class="feature">
+                    <h4>Parallel Writing</h4>
+                    <p>Use <code>NativeMultiHashMap.ParallelWriter</code> to populate the grid across all CPU cores simultaneously.</p>
+                </div>
+                <div class="feature">
+                    <h4>Burst Query Kernels</h4>
+                    <p>The compiler optimizes the spatial math into SIMD instructions, checking multiple objects per CPU cycle.</p>
+                </div>
+            </div>
+
+<pre><code class="language-csharp">[BurstCompile]
+struct SpatialQueryJob : IJobParallelFor {
+    [ReadOnly] public NativeMultiHashMap&lt;int, EntityData&gt; hash;
+    public void Execute(int index) {
+        // Run proximity checks at 100x speed
+    }
+}</code></pre>
+        </section>
+    </div>
+
+    <!-- PART 5: THE ARENA -->
+    <div id="part5">
+        <div class="part-header">
+            <span class="step-label">PART FIVE</span>
+            <h2 class="part-title">The Arena</h2>
+            <p style="max-width: 600px; margin: 1rem auto;">Pixel Pickup: A real-time stress test.</p>
+        </div>
+
+        <div class="visualizer-container" style="background: #000; padding: 0; overflow: hidden; position: relative; border-color: var(--accent); border-width: 2px;">
             <canvas id="gameCanvas" width="800" height="600" style="cursor: none;"></canvas>
             
             <!-- Game UI Overlays -->
-            <div style="position: absolute; top: 20px; left: 20px; text-align: left; font-family: 'JetBrains Mono'; pointer-events: none;">
-                <div style="color: var(--accent); font-size: 1.2rem; font-weight: 800;">PIXELS: <span id="gameScore">0</span></div>
-                <div style="color: var(--text-dim); font-size: 0.7rem; margin-top: 4px;">SPATIAL HASH: <span id="gameStats" style="color: #fff;">ACTIVE</span></div>
+            <div style="position: absolute; top: 30px; left: 30px; text-align: left; font-family: 'JetBrains Mono'; pointer-events: none;">
+                <div style="color: var(--accent); font-size: 1.5rem; font-weight: 900; letter-spacing: -0.05em;">PIXELS PICKED: <span id="gameScore">0</span></div>
+                <div style="color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; font-weight: 700;">SPATIAL HASH: <span id="gameStats" style="color: #fff;">ACTIVE (O(N))</span></div>
             </div>
 
-            <div id="gameOverlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: default;">
-                <div>
-                    <h3 style="color: var(--accent); font-size: 2rem; margin-bottom: 1rem;">READY TO PURGE?</h3>
-                    <p style="margin-bottom: 2rem; font-size: 0.9rem; color: #fff;">Move mouse to steer. Auto-shooting enabled.</p>
-                    <button onclick="startGame()" style="background: var(--accent); color: black; border: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: transform 0.2s;">START ENGINE</button>
+            <div id="gameOverlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: default; backdrop-filter: blur(10px);">
+                <div style="padding: 4rem; border: 1px solid var(--border); border-radius: 40px; background: var(--surface);">
+                    <h3 style="color: var(--accent); font-size: 3rem; margin-bottom: 1rem; font-weight: 900; letter-spacing: -0.05em;">PIXEL PICKUP</h3>
+                    <p style="margin-bottom: 3rem; font-size: 1.1rem; color: var(--text-dim);">The Final Exam. Move mouse to steer ship.<br/>Watch the grid flash as the hash calculates collisions.</p>
+                    <button onclick="startGame()" style="background: var(--accent); color: black; border: none; padding: 1.25rem 3.5rem; border-radius: 16px; font-weight: 900; cursor: pointer; transition: all 0.2s; font-size: 1.2rem; letter-spacing: 0.1em;">START ENGINE</button>
                 </div>
             </div>
         </div>
 
         <div class="learning-step" style="margin-top: 4rem;">
-            <h3 style="color: var(--text);">How it's using the Hash:</h3>
-            <ul style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-type: square;">
-                <li style="margin-bottom:0.5rem"><strong>Magnet System:</strong> The ship queries a 120px radius in the hash to find pixels. It only pulls what's in range, ignoring thousands of distant particles.</li>
-                <li style="margin-bottom:0.5rem"><strong>Bullet Physics:</strong> Each bullet queries its local cell to find enemies to damage.</li>
-                <li style="margin-bottom:0.5rem"><strong>Zero Lag:</strong> Even with 500+ items moving at once, the CPU is only performing a handful of checks per entity.</li>
-            </ul>
+            <h3>Tutorial Review:</h3>
+            <p>Every floating pixel and enemy in the arena above is registered into a custom Spatial Hash. The ship queries its local cells to attract pixels (Magnet) and bullets query their cells to destroy enemies. The result is a chaotic experience running at a solid 60fps.</p>
         </div>
     </div>
 
     <!-- PAYOFF -->
     <section id="payoff">
-        <div class="step-label">The Payoff</div>
-        <h2 style="color: var(--text);">Real-World Applications</h2>
+        <div class="step-label">Summary</div>
+        <h2>Real-World Power</h2>
         
         <div class="feature-grid">
             <div class="feature">
-                <h4>PurrNet / Netcode AOI</h4>
-                <p>Synchronize only the entities in a player's spatial "bubble." Save 90% of your network bandwidth.</p>
+                <h4>Netcode AOI</h4>
+                <p>Perfect for <strong>PurrNet</strong>. Synchronize only the entities in a player's spatial "bubble." Save 90% of your network bandwidth.</p>
             </div>
             <div class="feature">
-                <h4>Room Connectivity</h4>
-                <p>Instantly find "Which room am I in?" and propagate state through connected portals in $O(1)$.</p>
+                <h4>Room Sync</h4>
+                <p>Solve Mikkel's "Room Connectivity" problem. Instantly find "Which room am I in?" and propagate state through connected portals in $O(1)$.</p>
             </div>
         </div>
     </section>
@@ -425,12 +476,14 @@ for (int i = cellStart[cellID]; i < cellStart[cellID + 1]; i++) {
     <script>
         // --- Shared State & Themes ---
         window.currentAccent = '#FFD700';
+        window.currentBg = '#000000';
         function setTheme(theme, btn) {
             document.body.setAttribute('data-theme', theme);
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const style = getComputedStyle(document.body);
             window.currentAccent = style.getPropertyValue('--accent').trim();
+            window.currentBg = style.getPropertyValue('--bg').trim();
         }
 
         // --- Visualizer 0: The Web ---
@@ -449,86 +502,70 @@ for (int i = cellStart[cellID]; i < cellStart[cellID + 1]; i++) {
             const bB = document.getElementById('btnBrute');
             const bH = document.getElementById('btnHash');
             if(mode === 'brute') {
-                bB.className = "bg-red-900/20 border border-red-500/50 text-red-500 px-4 py-1 rounded-full text-xs font-bold";
-                bH.className = "bg-gray-900 border border-gray-800 text-gray-500 px-4 py-1 rounded-full text-xs font-bold";
-                document.getElementById('webComplexity').innerText = "Complexity: O(N²)";
+                bB.className = "bg-red-900/20 border border-red-500/50 text-red-500 px-6 py-2 rounded-full text-xs font-black tracking-widest";
+                bH.className = "bg-gray-900 border border-gray-800 text-gray-500 px-6 py-2 rounded-full text-xs font-black tracking-widest";
+                document.getElementById('webComplexity').innerText = "O(N²) COMPLEXITY";
                 document.getElementById('webComplexity').style.color = "#ff4444";
                 document.getElementById('webChecks').style.color = "#ff4444";
             } else {
-                bH.className = "bg-green-900/20 border border-green-500/50 text-green-500 px-4 py-1 rounded-full text-xs font-bold";
-                bB.className = "bg-gray-900 border border-gray-800 text-gray-500 px-4 py-1 rounded-full text-xs font-bold";
-                document.getElementById('webComplexity').innerText = "Complexity: ~O(N)";
+                bH.className = "bg-green-900/20 border border-green-500/50 text-green-500 px-6 py-2 rounded-full text-xs font-black tracking-widest";
+                bB.className = "bg-gray-900 border border-gray-800 text-gray-500 px-6 py-2 rounded-full text-xs font-black tracking-widest";
+                document.getElementById('webComplexity').innerText = "O(N) OPTIMIZED";
                 document.getElementById('webComplexity').style.color = window.currentAccent;
                 document.getElementById('webChecks').style.color = window.currentAccent;
             }
         };
 
         function drawWeb() {
-            ctxWeb.clearRect(0,0,vWeb.width,vWeb.height);
+            ctxWeb.fillStyle = window.currentBg;
+            ctxWeb.fillRect(0,0,vWeb.width,vWeb.height);
             const wCellSize = 80;
             let checks = 0;
 
-            // Move dots
             webDots.forEach(d => {
                 d.x += d.vx; d.y += d.vy;
                 if(d.x < 0 || d.x > vWeb.width) d.vx *= -1;
                 if(d.y < 0 || d.y > vWeb.height) d.vy *= -1;
             });
 
-            // Draw Web
-            ctxWeb.lineWidth = 0.5;
             for(let i=0; i<webDots.length; i++) {
                 for(let j=i+1; j<webDots.length; j++) {
-                    const d1 = webDots[i];
-                    const d2 = webDots[j];
-                    
+                    const d1 = webDots[i]; const d2 = webDots[j];
                     let shouldCheck = true;
                     if(webMode === 'hash') {
-                        const g1X = Math.floor(d1.x / wCellSize);
-                        const g1Y = Math.floor(d1.y / wCellSize);
-                        const g2X = Math.floor(d2.x / wCellSize);
-                        const g2Y = Math.floor(d2.y / wCellSize);
+                        const g1X = Math.floor(d1.x / wCellSize); const g1Y = Math.floor(d1.y / wCellSize);
+                        const g2X = Math.floor(d2.x / wCellSize); const g2Y = Math.floor(d2.y / wCellSize);
                         shouldCheck = Math.abs(g1X - g2X) <= 1 && Math.abs(g1Y - g2Y) <= 1;
                     }
-
                     if(shouldCheck) {
                         checks++;
                         ctxWeb.strokeStyle = webMode === 'brute' ? 'rgba(255,68,68,0.1)' : window.currentAccent + '44';
-                        ctxWeb.beginPath(); ctxWeb.moveTo(d1.x, d1.y); ctxWeb.lineTo(d2.x, d2.y);
-                        ctxWeb.stroke();
+                        ctxWeb.beginPath(); ctxWeb.moveTo(d1.x, d1.y); ctxWeb.lineTo(d2.x, d2.y); ctxWeb.stroke();
                     }
                 }
             }
-
-            // Draw Dots
             webDots.forEach(d => {
                 ctxWeb.beginPath(); ctxWeb.arc(d.x, d.y, 2, 0, Math.PI*2);
                 ctxWeb.fillStyle = webMode === 'brute' ? '#ff4444' : window.currentAccent;
                 ctxWeb.fill();
             });
-
             document.getElementById('webChecks').innerText = checks.toLocaleString();
             requestAnimationFrame(drawWeb);
         }
         drawWeb();
 
-        // --- Visualizer 1: Brute Force ---
+        // --- Visualizer 1: Brute Force Sphere ---
         const v1 = document.getElementById('vis1');
         const ctx1 = v1.getContext('2d');
         const dots = Array.from({length: 150}, () => ({x: Math.random() * v1.width, y: Math.random() * v1.height}));
         let mouse1 = {x: 400, y: 200};
-
-        v1.addEventListener('mousemove', e => {
-            const r = v1.getBoundingClientRect();
-            mouse1 = {x: e.clientX - r.left, y: e.clientY - r.top};
-        });
+        v1.addEventListener('mousemove', e => { const r = v1.getBoundingClientRect(); mouse1 = {x: e.clientX - r.left, y: e.clientY - r.top}; });
 
         function draw1() {
-            ctx1.clearRect(0,0,v1.width,v1.height);
+            ctx1.fillStyle = window.currentBg; ctx1.fillRect(0,0,v1.width,v1.height);
             dots.forEach(d => {
                 ctx1.beginPath(); ctx1.arc(d.x, d.y, 2, 0, Math.PI*2);
                 ctx1.fillStyle = '#333'; ctx1.fill();
-                // Draw line to show brute force "checking"
                 ctx1.strokeStyle = 'rgba(255,255,255,0.02)';
                 ctx1.beginPath(); ctx1.moveTo(mouse1.x, mouse1.y); ctx1.lineTo(d.x, d.y); ctx1.stroke();
             });
@@ -548,305 +585,168 @@ for (int i = cellStart[cellID]; i < cellStart[cellID + 1]; i++) {
         }));
         let mouse2 = {x: 400, y: 200};
         let cSize2 = 60;
-
-        v2.addEventListener('mousemove', e => {
-            const r = v2.getBoundingClientRect();
-            mouse2 = {x: e.clientX - r.left, y: e.clientY - r.top};
-        });
-        slider2.addEventListener('input', e => {
-            cSize2 = parseInt(e.target.value);
-            display2.innerText = cSize2;
-        });
+        v2.addEventListener('mousemove', e => { const r = v2.getBoundingClientRect(); mouse2 = {x: e.clientX - r.left, y: e.clientY - r.top}; });
+        slider2.addEventListener('input', e => { cSize2 = parseInt(e.target.value); display2.innerText = cSize2; });
 
         function draw2() {
-            ctx2.clearRect(0,0,v2.width,v2.height);
-            const radius = 100;
-            const gX = Math.floor(mouse2.x / cSize2);
-            const gY = Math.floor(mouse2.y / cSize2);
-            const range = Math.ceil(radius / cSize2);
-
-            // Grid
+            ctx2.fillStyle = window.currentBg; ctx2.fillRect(0,0,v2.width,v2.height);
+            const radius = 100; const gX = Math.floor(mouse2.x / cSize2); const gY = Math.floor(mouse2.y / cSize2); const range = Math.ceil(radius / cSize2);
             ctx2.strokeStyle = '#111'; ctx2.lineWidth = 1;
             for(let x=0; x<=v2.width; x+=cSize2) { ctx2.beginPath(); ctx2.moveTo(x,0); ctx2.lineTo(x,v2.height); ctx2.stroke(); }
             for(let y=0; y<=v2.height; y+=cSize2) { ctx2.beginPath(); ctx2.moveTo(0,y); ctx2.lineTo(v2.width,y); ctx2.stroke(); }
-
-            // Active Cells
             ctx2.fillStyle = window.currentAccent + '1A';
-            for(let x=gX-range; x<=gX+range; x++) {
-                for(let y=gY-range; y<=gY+range; y++) {
-                    ctx2.fillRect(x*cSize2, y*cSize2, cSize2, cSize2);
-                }
-            }
-
-            // AABBs
+            for(let x=gX-range; x<=gX+range; x++) for(let y=gY-range; y<=gY+range; y++) ctx2.fillRect(x*cSize2, y*cSize2, cSize2, cSize2);
             let checks = 0;
             aabbs.forEach(obj => {
-                const minX = Math.floor(obj.x / cSize2);
-                const maxX = Math.floor((obj.x + obj.w) / cSize2);
-                const minY = Math.floor(obj.y / cSize2);
-                const maxY = Math.floor((obj.y + obj.h) / cSize2);
+                const minX = Math.floor(obj.x / cSize2); const maxX = Math.floor((obj.x + obj.w) / cSize2);
+                const minY = Math.floor(obj.y / cSize2); const maxY = Math.floor((obj.y + obj.h) / cSize2);
                 const active = maxX >= gX-range && minX <= gX+range && maxY >= gY-range && minY <= gY+range;
                 if(active) checks++;
-                ctx2.strokeStyle = active ? window.currentAccent : '#222';
-                ctx2.lineWidth = active ? 2 : 1;
+                ctx2.strokeStyle = active ? window.currentAccent : '#222'; ctx2.lineWidth = active ? 2 : 1;
                 ctx2.strokeRect(obj.x, obj.y, obj.w, obj.h);
                 if(active) { ctx2.fillStyle = window.currentAccent + '33'; ctx2.fillRect(obj.x, obj.y, obj.w, obj.h); }
             });
-
-            // Player
-            ctx2.strokeStyle = window.currentAccent; ctx2.setLineDash([5,5]);
-            ctx2.beginPath(); ctx2.arc(mouse2.x, mouse2.y, radius, 0, Math.PI*2); ctx2.stroke(); ctx2.setLineDash([]);
+            ctx2.strokeStyle = window.currentAccent; ctx2.setLineDash([5,5]); ctx2.beginPath(); ctx2.arc(mouse2.x, mouse2.y, radius, 0, Math.PI*2); ctx2.stroke(); ctx2.setLineDash([]);
             ctx2.fillStyle = '#ff4444'; ctx2.fillRect(mouse2.x-6, mouse2.y-6, 12, 12);
-
             document.getElementById('checkCount2').innerText = checks;
             document.getElementById('savings2').innerText = Math.round((1 - checks/150)*100) + '%';
             requestAnimationFrame(draw2);
         }
         draw2();
 
-        // --- PART 4: PIXEL PURGE GAME ---
+        // --- Visualizer: Density Map ---
+        const vDen = document.getElementById('visDensity');
+        const ctxDen = vDen.getContext('2d');
+        const denDots = Array.from({length: 200}, () => ({
+            x: Math.random() * vDen.width, y: Math.random() * vDen.height,
+            vx: (Math.random()-0.5) * 2, vy: (Math.random()-0.5) * 2
+        }));
+        function drawDensity() {
+            ctxDen.fillStyle = window.currentBg; ctxDen.fillRect(0,0,vDen.width,vDen.height);
+            const dSize = 50; const density = {};
+            denDots.forEach(d => {
+                d.x += d.vx; d.y += d.vy;
+                if(d.x < 0 || d.x > vDen.width) d.vx *= -1;
+                if(d.y < 0 || d.y > vDen.height) d.vy *= -1;
+                const k = `${Math.floor(d.x/dSize)},${Math.floor(d.y/dSize)}`;
+                density[k] = (density[k] || 0) + 1;
+            });
+            let maxD = 0;
+            for(let x=0; x<vDen.width; x+=dSize) {
+                for(let y=0; y<vDen.height; y+=dSize) {
+                    const count = density[`${x/dSize},${y/dSize}`] || 0;
+                    maxD = Math.max(maxD, count);
+                    if(count > 0) {
+                        ctxDen.fillStyle = window.currentAccent + Math.min(255, count * 20).toString(16).padStart(2, '0');
+                        ctxDen.fillRect(x, y, dSize, dSize);
+                        ctxDen.fillStyle = window.currentAccent; ctxDen.font = '10px JetBrains Mono';
+                        ctxDen.fillText(count, x+5, y+15);
+                    }
+                    ctxDen.strokeStyle = '#111'; ctxDen.strokeRect(x,y,dSize,dSize);
+                }
+            }
+            denDots.forEach(d => { ctxDen.fillStyle = '#fff'; ctxDen.fillRect(d.x-1, d.y-1, 2, 2); });
+            document.getElementById('maxDepth').innerText = maxD;
+            requestAnimationFrame(drawDensity);
+        }
+        drawDensity();
+
+        // --- PART 5: PIXEL PICKUP GAME ---
         const gCanvas = document.getElementById('gameCanvas');
         const gCtx = gCanvas.getContext('2d');
-        let gameRunning = false;
-        let score = 0;
-
+        let gameRunning = false; let score = 0;
         class GameHash {
-            constructor(size) {
-                this.size = size;
-                this.grid = new Map();
-                this.activeCells = new Set();
-            }
-            clear() { 
-                this.grid.clear(); 
-                this.activeCells.clear();
-            }
+            constructor(size) { this.size = size; this.grid = new Map(); this.activeCells = new Set(); }
+            clear() { this.grid.clear(); this.activeCells.clear(); }
             insert(obj) {
                 const k = `${Math.floor(obj.x/this.size)},${Math.floor(obj.y/this.size)}`;
                 if(!this.grid.has(k)) this.grid.set(k, []);
                 this.grid.get(k).push(obj);
             }
             query(x, y, rad, results) {
-                const gX = Math.floor(x/this.size);
-                const gY = Math.floor(y/this.size);
-                const r = Math.ceil(rad/this.size);
-                for(let ix=gX-r; ix<=gX+r; ix++) {
-                    for(let iy=gY-r; iy<=gY+r; iy++) {
-                        const key = `${ix},${iy}`;
-                        this.activeCells.add(key);
-                        const cell = this.grid.get(key);
-                        if(cell) {
-                            for(let i=0; i<cell.length; i++) {
-                                const dX = cell[i].x - x;
-                                const dY = cell[i].y - y;
-                                if(dX*dX + dY*dY <= rad*rad) results.push(cell[i]);
-                            }
-                        }
+                const gX = Math.floor(x/this.size); const gY = Math.floor(y/this.size); const r = Math.ceil(rad/this.size);
+                for(let ix=gX-r; ix<=gX+r; ix++) for(let iy=gY-r; iy<=gY+r; iy++) {
+                    const key = `${ix},${iy}`; this.activeCells.add(key);
+                    const cell = this.grid.get(key);
+                    if(cell) for(let i=0; i<cell.length; i++) {
+                        const dX = cell[i].x - x; const dY = cell[i].y - y;
+                        if(dX*dX + dY*dY <= rad*rad) results.push(cell[i]);
                     }
                 }
             }
         }
-
-        const spatialHash = new GameHash(40);
-        const player = { x: 400, y: 300, r: 15, mag: 120 };
-        const bullets = [];
-        const enemies = [];
-        const pixels = [];
-        let frame = 0;
-
-        window.startGame = () => {
-            document.getElementById('gameOverlay').style.display = 'none';
-            // Initialize random colors for pixels if they don't have them
-            gameRunning = true;
-            loop();
-        };
-
+        const spatialHash = new GameHash(40); const player = { x: 400, y: 300, r: 15, mag: 140 };
+        const bullets = []; const enemies = []; const pixels = []; let frame = 0;
+        window.startGame = () => { document.getElementById('gameOverlay').style.display = 'none'; gameRunning = true; loop(); };
         function loop() {
-            if(!gameRunning) return;
-            frame++;
+            if(!gameRunning) return; frame++;
+            spatialHash.clear(); enemies.forEach(e => spatialHash.insert(e)); pixels.forEach(p => spatialHash.insert(p));
             
-            // Rebuild Hash for dynamic collisions at start of frame
-            spatialHash.clear();
-            enemies.forEach(e => spatialHash.insert(e));
-            pixels.forEach(p => spatialHash.insert(p));
-
-            // 1. Update Entities
-            const rect = gCanvas.getBoundingClientRect();
-            
-            // Auto shoot towards NEAREST enemy using Hash
-            if(frame % 8 === 0) {
-                const targets = [];
-                spatialHash.query(player.x, player.y, 400, targets);
-                let nearest = null;
-                let minDist = Infinity;
-                targets.forEach(t => {
-                    if (enemies.includes(t)) {
-                        const d = Math.sqrt((t.x-player.x)**2 + (t.y-player.y)**2);
-                        if (d < minDist) { minDist = d; nearest = t; }
-                    }
-                });
-
-                if (nearest) {
-                    const dx = nearest.x - player.x;
-                    const dy = nearest.y - player.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    bullets.push({ 
-                        x: player.x, y: player.y, 
-                        vx: (dx/dist) * 8, vy: (dy/dist) * 8, 
-                        r: 4 
-                    });
-                } else {
-                    // Default fire up if no enemies
-                    bullets.push({ x: player.x, y: player.y, vx: 0, vy: -8, r: 4 });
+            if(frame % 6 === 0) {
+                const targets = []; spatialHash.query(player.x, player.y, 500, targets);
+                let nearest = null; let minDist = Infinity;
+                targets.forEach(t => { if(enemies.includes(t)) { const d = Math.sqrt((t.x-player.x)**2+(t.y-player.y)**2); if(d<minDist){minDist=d; nearest=t;} } });
+                if(nearest) {
+                    const dx = nearest.x - player.x; const dy = nearest.y - player.y; const dist = Math.sqrt(dx*dx+dy*dy);
+                    bullets.push({ x: player.x, y: player.y, vx: (dx/dist)*10, vy: (dy/dist)*10, r: 5 });
                 }
             }
-
-            // Spawn enemies faster
-            if(frame % 20 === 0) {
-                const side = Math.floor(Math.random()*4);
-                let ex, ey;
-                if(side === 0) { ex = Math.random()*800; ey = -20; }
-                else if(side === 1) { ex = 820; ey = Math.random()*600; }
-                else if(side === 2) { ex = Math.random()*800; ey = 620; }
-                else { ex = -20; ey = Math.random()*600; }
+            if(frame % 15 === 0) {
+                const side = Math.floor(Math.random()*4); let ex, ey;
+                if(side === 0) { ex = Math.random()*800; ey = -20; } else if(side === 1) { ex = 820; ey = Math.random()*600; }
+                else if(side === 2) { ex = Math.random()*800; ey = 620; } else { ex = -20; ey = Math.random()*600; }
                 enemies.push({ x: ex, y: ey, hp: 1, r: 12 });
             }
-
-            // Move Bullets
             for(let i=bullets.length-1; i>=0; i--) {
-                bullets[i].x += bullets[i].vx;
-                bullets[i].y += bullets[i].vy;
-                if(bullets[i].y < -50 || bullets[i].y > 650 || bullets[i].x < -50 || bullets[i].x > 850) {
-                    bullets.splice(i, 1);
-                }
+                bullets[i].x += bullets[i].vx; bullets[i].y += bullets[i].vy;
+                if(bullets[i].y<-50||bullets[i].y>650||bullets[i].x<-50||bullets[i].x>850) bullets.splice(i, 1);
             }
-
-            // Move Enemies (simple seek)
             enemies.forEach(e => {
-                const dx = player.x - e.x;
-                const dy = player.y - e.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                e.x += (dx/dist) * 1.8;
-                e.y += (dy/dist) * 1.8;
+                const dx = player.x-e.x; const dy = player.y-e.y; const dist = Math.sqrt(dx*dx+dy*dy);
+                e.x += (dx/dist)*2.2; e.y += (dy/dist)*2.2;
             });
-
-            // 2. Resolve Collisions using Hash
-            // Bullets vs Enemies (PIERCING)
             bullets.forEach(b => {
-                const hits = [];
-                spatialHash.query(b.x, b.y, b.r + 15, hits);
+                const hits = []; spatialHash.query(b.x, b.y, b.r + 20, hits);
                 hits.forEach(h => {
                     if(enemies.includes(h)) {
-                        // Instant kill + massive pixel drop
-                        for(let k=0; k<30; k++) {
-                            pixels.push({ 
-                                x: h.x, y: h.y, 
-                                vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6,
-                                active: false,
-                                color: `hsl(${Math.random() * 360}, 70%, 60%)`
-                            });
-                        }
+                        for(let k=0; k<25; k++) pixels.push({ x: h.x, y: h.y, vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, active: false, color: `hsl(${Math.random()*360}, 70%, 60%)` });
                         enemies.splice(enemies.indexOf(h), 1);
                     }
                 });
             });
-
-            // Player Magnet vs Pixels
-            const pulled = [];
-            spatialHash.query(player.x, player.y, player.mag, pulled);
+            const pulled = []; spatialHash.query(player.x, player.y, player.mag, pulled);
             pulled.forEach(p => {
                 if(pixels.includes(p)) {
-                    p.active = true;
-                    const dx = player.x - p.x;
-                    const dy = player.y - p.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    const speed = Math.max(2, (player.mag - dist) * 0.1);
-                    p.vx += (dx/dist) * speed;
-                    p.vy += (dy/dist) * speed;
-                    
-                    if(dist < 15) {
-                        pixels.splice(pixels.indexOf(p), 1);
-                        score++;
-                        document.getElementById('gameScore').innerText = score;
-                    }
+                    p.active = true; const dx = player.x-p.x; const dy = player.y-p.y; const dist = Math.sqrt(dx*dx+dy*dy);
+                    p.vx += (dx/dist)*1.2; p.vy += (dy/dist)*1.2;
+                    if(dist<20) { pixels.splice(pixels.indexOf(p), 1); score++; document.getElementById('gameScore').innerText = score; }
                 }
             });
-
-            // Move Pixels
-            pixels.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                p.vx *= 0.94; p.vy *= 0.94; // Higher friction for better magnet feel
-            });
-
-            // 3. Render
-            gCtx.fillStyle = '#000';
-            gCtx.fillRect(0,0,800,600);
-
-            // Draw Hash Grid (Subtle)
+            pixels.forEach(p => { p.x += p.vx; p.y += p.vy; p.vx *= 0.92; p.vy *= 0.92; });
+            gCtx.fillStyle = '#000'; gCtx.fillRect(0,0,800,600);
             gCtx.strokeStyle = '#050505';
             for(let x=0; x<800; x+=40) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,600); gCtx.stroke(); }
             for(let y=0; y<600; y+=40) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(800,y); gCtx.stroke(); }
-
-            // Draw Active Cells (Evaluated Buckets)
             gCtx.fillStyle = window.currentAccent + '15';
             spatialHash.activeCells.forEach(key => {
                 const [cx, cy] = key.split(',').map(Number);
-                gCtx.fillRect(cx * spatialHash.size, cy * spatialHash.size, spatialHash.size, spatialHash.size);
-                gCtx.strokeStyle = window.currentAccent + '33';
-                gCtx.strokeRect(cx * spatialHash.size, cy * spatialHash.size, spatialHash.size, spatialHash.size);
+                gCtx.fillRect(cx*spatialHash.size, cy*spatialHash.size, spatialHash.size, spatialHash.size);
+                gCtx.strokeStyle = window.currentAccent + '22'; gCtx.strokeRect(cx*spatialHash.size, cy*spatialHash.size, spatialHash.size, spatialHash.size);
             });
-
-            // Draw Entities
             pixels.forEach(p => {
-                if (p.active) {
-                    // Neon Flash
-                    gCtx.fillStyle = `hsl(${(frame * 10) % 360}, 100%, 70%)`;
-                    gCtx.shadowBlur = 5;
-                    gCtx.shadowColor = gCtx.fillStyle;
-                } else {
-                    gCtx.fillStyle = p.color || '#333';
-                    gCtx.shadowBlur = 0;
-                }
+                if(p.active) { gCtx.fillStyle = `hsl(${(frame*15)%360}, 100%, 70%)`; gCtx.shadowBlur = 8; gCtx.shadowColor = gCtx.fillStyle; }
+                else { gCtx.fillStyle = p.color || '#333'; gCtx.shadowBlur = 0; }
                 gCtx.fillRect(p.x-1.5, p.y-1.5, 3, 3);
             });
             gCtx.shadowBlur = 0;
-
-            enemies.forEach(e => {
-                gCtx.strokeStyle = '#ff4444';
-                gCtx.lineWidth = 2;
-                gCtx.strokeRect(e.x-10, e.y-10, 20, 20);
-                // Health bar
-                gCtx.fillStyle = '#ff4444';
-                gCtx.fillRect(e.x-10, e.y-15, (e.hp/3)*20, 2);
-            });
-
-            bullets.forEach(b => {
-                gCtx.fillStyle = window.currentAccent;
-                gCtx.shadowBlur = 8;
-                gCtx.shadowColor = window.currentAccent;
-                gCtx.beginPath(); gCtx.arc(b.x, b.y, b.r, 0, Math.PI*2); gCtx.fill();
-            });
+            enemies.forEach(e => { gCtx.strokeStyle = '#ff4444'; gCtx.lineWidth = 2; gCtx.strokeRect(e.x-10, e.y-10, 20, 20); });
+            bullets.forEach(b => { gCtx.fillStyle = window.currentAccent; gCtx.shadowBlur = 10; gCtx.shadowColor = window.currentAccent; gCtx.beginPath(); gCtx.arc(b.x, b.y, b.r, 0, Math.PI*2); gCtx.fill(); });
             gCtx.shadowBlur = 0;
-
-            // Draw Player
-            gCtx.strokeStyle = window.currentAccent;
-            gCtx.setLineDash([5, 5]);
-            gCtx.beginPath(); gCtx.arc(player.x, player.y, player.mag, 0, Math.PI*2); gCtx.stroke();
-            gCtx.setLineDash([]);
-            
-            gCtx.fillStyle = '#ff4444';
-            gCtx.shadowBlur = 15;
-            gCtx.shadowColor = '#ff4444';
-            gCtx.fillRect(player.x-10, player.y-10, 20, 20);
-            gCtx.shadowBlur = 0;
-
+            gCtx.strokeStyle = window.currentAccent; gCtx.setLineDash([5, 5]); gCtx.beginPath(); gCtx.arc(player.x, player.y, player.mag, 0, Math.PI*2); gCtx.stroke(); gCtx.setLineDash([]);
+            gCtx.fillStyle = '#ff4444'; gCtx.shadowBlur = 20; gCtx.shadowColor = '#ff4444'; gCtx.fillRect(player.x-10, player.y-10, 20, 20); gCtx.shadowBlur = 0;
             requestAnimationFrame(loop);
         }
-
-        gCanvas.addEventListener('mousemove', e => {
-            const r = gCanvas.getBoundingClientRect();
-            player.x = e.clientX - r.left;
-            player.y = e.clientY - r.top;
-        });
+        gCanvas.addEventListener('mousemove', e => { const r = gCanvas.getBoundingClientRect(); player.x = e.clientX - r.left; player.y = e.clientY - r.top; });
     </script>
 </body>
 </html>
