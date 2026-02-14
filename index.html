@@ -1,297 +1,216 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spatial Hashing Explained | Trent Sterling</title>
-    <meta name="description" content="A technical deep-dive into spatial partitioning for Unity games. Learn how to optimize collisions, networking, and AI lookups.">
+    <title>Understanding Spatial Hashing | Trent Sterling</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Prism.js for Code Highlighting -->
+    <!-- Simple, clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Prism.js for code -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Space Grotesk', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        bg: '#050505',
-                        card: '#0a0a0a',
-                        border: '#1f1f1f',
-                        accent: '#3b82f6', // blue-500
-                        accentHover: '#2563eb', // blue-600
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
-        body { background-color: #050505; color: #e5e5e5; }
-        .glass { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glow { box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.15); }
-        .grid-bg { 
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
-        code[class*="language-"], pre[class*="language-"] { font-size: 0.85rem !important; background: #0a0a0a !important; text-shadow: none !important; }
-    </style>
-</head>
-<body class="font-sans selection:bg-accent selection:text-white">
-
-    <div class="fixed inset-0 grid-bg pointer-events-none opacity-50"></div>
-
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-border glass">
-        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="https://tront.xyz" class="flex items-center space-x-2 group">
-                <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-bold group-hover:scale-105 transition-transform">
-                    <span class="font-mono text-lg">T</span>
-                </div>
-                <span class="font-bold text-lg tracking-tight group-hover:text-white text-gray-400 transition-colors">Trent Sterling</span>
-            </a>
-            <div class="flex items-center space-x-6 text-sm font-medium text-gray-400">
-                <a href="#concept" class="hover:text-white transition-colors">Concept</a>
-                <a href="#implementation" class="hover:text-white transition-colors">Code</a>
-                <a href="https://github.com/TrentSterling/spatialhash" class="text-white hover:text-accent transition-colors flex items-center space-x-2">
-                    <i data-lucide="github" class="w-4 h-4"></i>
-                    <span>Source</span>
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Header / Intro -->
-    <header class="pt-32 pb-20 px-6 relative overflow-hidden">
-        <div class="max-w-3xl mx-auto text-center">
-            <div class="inline-flex items-center space-x-2 bg-accent/10 border border-accent/20 px-3 py-1 rounded-full text-accent text-xs font-bold mb-6 font-mono tracking-wide">
-                <span>OPTIMIZATION 101</span>
-            </div>
-            <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-tight text-white">
-                Stop Checking Every Object.
-                <span class="text-gray-500 block text-2xl md:text-4xl mt-2 font-medium">Use a Spatial Hash.</span>
-            </h1>
-            <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Most developers hit a wall when their game scales. Checking collisions, finding path nodes, or syncing networks at <span class="text-red-400 font-mono">O(N²)</span> is a death sentence. Here's how to fix it with a simple grid.
-            </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="#concept" class="flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-200 transition-colors">
-                    <span>Explain the Logic</span>
-                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
-                </a>
-                <a href="https://github.com/TrentSterling/spatialhash" class="flex items-center space-x-2 bg-border hover:bg-white/10 text-white px-6 py-3 rounded-lg font-medium transition-colors border border-white/5">
-                    <i data-lucide="github" class="w-4 h-4"></i>
-                    <span>View on GitHub</span>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- The Concept -->
-    <section id="concept" class="py-20 px-6 border-t border-border bg-card/50">
-        <div class="max-w-4xl mx-auto">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="space-y-6">
-                    <h2 class="text-3xl font-bold text-white flex items-center">
-                        <i data-lucide="grid" class="w-6 h-6 mr-3 text-accent"></i>
-                        The Grid Strategy
-                    </h2>
-                    <p class="text-gray-400 leading-relaxed">
-                        Imagine your world is a giant chessboard. Instead of asking every piece "Are you near me?", you just look at the square you're standing on (and maybe the 8 around it).
-                    </p>
-                    <p class="text-gray-400 leading-relaxed">
-                        A <strong class="text-white">Spatial Hash</strong> maps 3D coordinates to a simple integer key. It's just a Dictionary lookup: <code class="bg-border px-1 py-0.5 rounded text-sm font-mono text-accent">Dictionary&lt;int, List&lt;T&gt;&gt;</code>.
-                    </p>
-                    <ul class="space-y-3 text-gray-400 mt-4">
-                        <li class="flex items-start">
-                            <i data-lucide="check" class="w-5 h-5 mr-3 text-green-500 mt-0.5"></i>
-                            <span><strong>O(1) Insertion:</strong> Math.Floor(pos / cellSize)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i data-lucide="check" class="w-5 h-5 mr-3 text-green-500 mt-0.5"></i>
-                            <span><strong>O(1) Lookup:</strong> Only check the relevant bucket.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i data-lucide="check" class="w-5 h-5 mr-3 text-green-500 mt-0.5"></i>
-                            <span><strong>Generic:</strong> Works for Colliders, NetworkIdentity, AI, etc.</span>
-                        </li>
-                    </ul>
-                </div>
-                <!-- Visual Representation -->
-                <div class="relative group">
-                    <div class="absolute inset-0 bg-accent/20 blur-3xl rounded-full opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                    <div class="glass p-6 rounded-xl border border-border relative">
-                        <div class="grid grid-cols-4 gap-1 h-64 w-full">
-                            <!-- Simple CSS Grid Visualization -->
-                            <div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div>
-                            <div class="bg-white/5 rounded"></div>
-                            <div class="bg-accent/20 border border-accent rounded flex items-center justify-center relative">
-                                <div class="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
-                                <div class="absolute -top-2 -right-2 bg-black text-xs px-2 py-0.5 rounded border border-accent text-accent">You</div>
-                            </div>
-                            <div class="bg-accent/10 border border-accent/30 rounded"></div><div class="bg-white/5 rounded"></div>
-                            <div class="bg-white/5 rounded"></div><div class="bg-accent/10 border border-accent/30 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div>
-                            <div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div><div class="bg-white/5 rounded"></div>
-                        </div>
-                        <div class="mt-4 text-center text-xs font-mono text-gray-500">
-                            Only querying highlighted cells vs. entire grid
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Use Cases -->
-    <section class="py-20 px-6 border-t border-border">
-        <div class="max-w-5xl mx-auto">
-            <h2 class="text-3xl font-bold text-white mb-12 text-center">Where to use it</h2>
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Case 1 -->
-                <div class="glass p-6 rounded-xl border border-border hover:border-accent/50 transition-colors">
-                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4">
-                        <i data-lucide="globe" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Network AOI</h3>
-                    <p class="text-sm text-gray-400">
-                        Perfect for <strong>FishNet</strong>, <strong>Mirror</strong>, or Mikkel's <strong>PurrNet</strong>. Only sync data to players within a specific radius. Don't send movement packets to someone 2km away.
-                    </p>
-                </div>
-                <!-- Case 2 -->
-                <div class="glass p-6 rounded-xl border border-border hover:border-accent/50 transition-colors">
-                    <div class="w-10 h-10 bg-red-500/10 text-red-400 rounded-lg flex items-center justify-center mb-4">
-                        <i data-lucide="crosshair" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Bullet Hell</h3>
-                    <p class="text-sm text-gray-400">
-                        Checking 10,000 bullets against 500 enemies? A spatial hash turns that from a slideshow into a smooth 60fps experience.
-                    </p>
-                </div>
-                <!-- Case 3 -->
-                <div class="glass p-6 rounded-xl border border-border hover:border-accent/50 transition-colors">
-                    <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-lg flex items-center justify-center mb-4">
-                        <i data-lucide="map" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">World Streaming</h3>
-                    <p class="text-sm text-gray-400">
-                        Use the hash to manage chunks. "Which chunk am I in?" becomes a single integer division.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Implementation Code -->
-    <section id="implementation" class="py-20 px-6 border-t border-border bg-card/30">
-        <div class="max-w-4xl mx-auto">
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-bold text-white">The Implementation</h2>
-                <span class="text-sm font-mono text-gray-500">SpatialHash.cs</span>
-            </div>
-            
-            <div class="rounded-xl overflow-hidden border border-border bg-[#0a0a0a] shadow-2xl">
-                <div class="flex items-center px-4 py-2 border-b border-white/5 bg-white/5 space-x-2">
-                    <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-                    <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                    <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
-                </div>
-                <pre class="!m-0 !p-6 overflow-x-auto"><code class="language-csharp">using System.Collections.Generic;
-using UnityEngine;
-
-namespace GenericSpatialHash {
-    public class SpatialHash<T> {
-        // Dictionary maps cell ID -> List of Objects
-        private Dictionary<int, List<T>> _grid;
-        private float _cellSize;
-
-        public SpatialHash(float cellSize) {
-            _cellSize = cellSize;
-            _grid = new Dictionary<int, List<T>>();
+        :root {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --muted: #666666;
+            --accent: #0066cc;
+            --code-bg: #f5f5f5;
+            --border: #e0e0e0;
         }
 
-        // Fast, allocation-free key generation
-        private int GetKey(Vector3 pos) {
-            int x = Mathf.FloorToInt(pos.x / _cellSize);
-            int y = Mathf.FloorToInt(pos.y / _cellSize);
-            int z = Mathf.FloorToInt(pos.z / _cellSize);
-            
-            // Simple hash combine
-            unchecked {
-                int hash = 17;
-                hash = hash * 23 + x;
-                hash = hash * 23 + y;
-                hash = hash * 23 + z;
-                return hash;
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #121212;
+                --text: #e0e0e0;
+                --muted: #a0a0a0;
+                --accent: #4da6ff;
+                --code-bg: #1e1e1e;
+                --border: #333333;
             }
         }
 
-        // Query without garbage collection
-        public void Query(Vector3 pos, float radius, List<T> results) {
-            // ... Math to find min/max cell range ...
-            // Loop only relevant cells and add to results list
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
         }
+
+        header { margin-bottom: 4rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem; }
+        h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        h2 { font-size: 1.75rem; font-weight: 600; margin-top: 3rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; }
+        
+        p { margin-bottom: 1.5rem; font-size: 1.1rem; }
+        .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+        .meta a { color: var(--accent); text-decoration: none; margin-right: 1rem; }
+
+        code { font-family: 'IBM Plex Mono', monospace; font-size: 0.9em; background: var(--code-bg); padding: 0.2em 0.4em; border-radius: 3px; }
+        pre { background: var(--code-bg); padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border); }
+        pre code { background: none; padding: 0; }
+
+        blockquote { border-left: 4px solid var(--accent); padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: var(--muted); }
+        
+        .math { font-family: 'IBM Plex Mono', monospace; background: var(--accent); color: white; padding: 1rem; border-radius: 8px; text-align: center; margin: 2rem 0; font-weight: 500; }
+
+        .nav { margin-bottom: 2rem; }
+        .nav a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-right: 1.5rem; border-bottom: 2px solid transparent; }
+        .nav a:hover { border-bottom-color: var(--accent); }
+
+        footer { margin-top: 6rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; text-align: center; }
+        footer a { color: var(--accent); }
+
+        .diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; text-align: center; margin: 2rem 0; }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav">
+        <a href="https://tront.xyz">Home</a>
+        <a href="https://blog.tront.xyz">Blog</a>
+        <a href="https://github.com/TrentSterling/spatialhash">GitHub</a>
+        <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
+    </div>
+
+    <header>
+        <h1>Understanding Spatial Hashing</h1>
+        <p class="meta">
+            By <a href="https://tront.xyz">Trent Sterling</a> • Feb 14, 2026 • Optimization Tutorial
+        </p>
+        <p style="font-size: 1.2rem; color: var(--muted);">
+            Why your game lags at 1,000 units, and how a simple grid fixes it without allocating a single byte of garbage.
+        </p>
+    </header>
+
+    <section>
+        <h2>The Problem: The $O(N^2)$ Trap</h2>
+        <p>
+            You're building a game. You have 1,000 projectiles. You have 100 enemies. Every frame, you want to know if a projectile hit an enemy.
+        </p>
+        <p>
+            The naive way: 
+            <code>foreach(projectile in bullets) foreach(enemy in enemies) CheckCollision(projectile, enemy);</code>
+        </p>
+        <p>
+            That is <strong>100,000 checks every single frame</strong>. 
+            At 2,000 bullets, it's 200,000. It's an exponential curve that kills your framerate.
+        </p>
+        
+        <blockquote>
+            "If you're checking every object against every other object, you're not writing a game; you're writing a benchmark."
+        </blockquote>
+
+        <h2>The Solution: Spatial Partitioning</h2>
+        <p>
+            Instead of checking everything, we only check objects that are <em>physically near each other</em>.
+        </p>
+        <p>
+            A <strong>Spatial Hash</strong> is the simplest way to do this. You divide your world into a grid of cells (like a chessboard). Each object is "registered" into the cell it occupies.
+        </p>
+        <p>
+            When you want to find nearby objects, you only look at the cell you're in and its immediate neighbors. 
+        </p>
+
+        <div class="math">
+            CellX = floor(PosX / CellSize)<br>
+            CellY = floor(PosY / CellSize)<br>
+            CellZ = floor(PosZ / CellSize)
+        </div>
+
+        <h3>The "Hash" Part</h3>
+        <p>
+            Why is it called a hash? Because we take those 3D coordinates (X, Y, Z) and combine them into a single integer <strong>Key</strong> that we can use as a dictionary index.
+        </p>
+<pre><code class="language-csharp">private int GetKey(Vector3 pos) {
+    int x = Mathf.FloorToInt(pos.x / _cellSize);
+    int y = Mathf.FloorToInt(pos.y / _cellSize);
+    int z = Mathf.FloorToInt(pos.z / _cellSize);
+    
+    // Combine into a single unique integer
+    unchecked {
+        int hash = 17;
+        hash = hash * 23 + x;
+        hash = hash * 23 + y;
+        hash = hash * 23 + z;
+        return hash;
     }
 }</code></pre>
-            </div>
-            <div class="text-center mt-8">
-                <a href="https://github.com/TrentSterling/spatialhash" class="inline-flex items-center space-x-2 text-accent hover:text-white transition-colors font-medium border-b border-transparent hover:border-white pb-0.5">
-                    <span>View full source code</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
-        </div>
+
+        <h2>How it avoids GC (Garbage Collection)</h2>
+        <p>
+            In Unity, memory allocation is the enemy. If you call <code>new List&lt;T&gt;()</code> every time you query the grid, you will create "Garbage" that the CPU has to clean up, causing "GC Spikes" (lag).
+        </p>
+        
+        <h3>1. Pre-allocated Buffers</h3>
+        <p>
+            Don't let the function <em>return</em> a list. Instead, make the caller <em>provide</em> a list.
+        </p>
+<pre><code class="language-csharp">// BAD: Allocates a new list every call
+public List&lt;T&gt; Query(Vector3 pos) { 
+    return new List&lt;T&gt;(); 
+}
+
+// GOOD: Fills an existing list (Zero Allocation)
+public void Query(Vector3 pos, float radius, List&lt;T&gt; results) {
+    results.Clear(); // Reuse the memory already in the list
+    // Fill results...
+}</code></pre>
+
+        <h3>2. Dictionary Buckets</h3>
+        <p>
+            We use a <code>Dictionary&lt;int, List&lt;T&gt;&gt;</code>. To avoid GC, we never "remove" the inner lists. We just clear them when the grid is empty. We also use <code>TryGet</code> to avoid throwing exceptions or creating new entries accidentally.
+        </p>
+
+        <h3>3. Managed vs. Native</h3>
+        <p>
+            While the code in this repo is "Managed" (C#), you can go a step further with Unity's <strong>Job System</strong> and <strong>NativeMultiHashMap</strong>. That moves the data to the "Native" side where the Garbage Collector can't even see it. For most games, the Managed pattern with pooled lists is 99% of what you need.
+        </p>
+
+        <h2>Real World Use Cases</h2>
+        
+        <h3>1. Network AOI (Area of Interest)</h3>
+        <p>
+            Whether using <strong>PurrNet</strong>, <strong>FishNet</strong>, or <strong>Mirror</strong>, you only want to sync players who are close to each other.
+        </p>
+        <p>
+            The Server puts everyone in a Spatial Hash. Every tick, it queries a 50m radius around each player. It only sends position updates for the entities found in that query. This saves 90% of your bandwidth.
+        </p>
+
+        <h3>2. Pathfinding Node Lookup</h3>
+        <p>
+            Finding the "closest node" on a 5,000-node graph is slow. If you hash the nodes, you just query the cell the player clicked in. It's instant.
+        </p>
+
+        <h2>Summary</h2>
+        <ul>
+            <li><strong>O(N²) is bad.</strong> Spatial hashing makes it close to O(1) or O(N).</li>
+            <li><strong>The Grid is king.</strong> Simple division maps space to memory.</li>
+            <li><strong>Reuse your lists.</strong> Don't <code>new</code> in the Update loop.</li>
+        </ul>
+        
+        <p>
+            The code in the <a href="https://github.com/TrentSterling/spatialhash">GitHub Repo</a> is a clean, production-ready version of this pattern. Use it, break it, and optimize your game.
+        </p>
     </section>
 
-    <!-- Footer -->
-    <footer class="py-12 border-t border-border text-center bg-black">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="flex flex-col items-center">
-                <a href="https://tront.xyz" class="mb-6">
-                    <div class="w-10 h-10 bg-accent rounded-lg flex items-center justify-center text-white font-bold text-xl mx-auto">T</div>
-                </a>
-                <h3 class="text-white font-bold text-lg mb-2">Built by Trent Sterling</h3>
-                <p class="text-gray-500 text-sm mb-8 max-w-md mx-auto">
-                    A resource for my friends and the community. <br/>
-                    Come say hi if this saved your frame rate.
-                </p>
-                
-                <div class="flex flex-wrap justify-center gap-6 text-sm font-medium text-gray-400">
-                    <a href="https://discord.gg/0hyoWZyM6y7kkFCN" class="flex items-center space-x-2 hover:text-[#5865F2] transition-colors">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i>
-                        <span>Discord</span>
-                    </a>
-                    <a href="https://github.com/TrentSterling" class="flex items-center space-x-2 hover:text-white transition-colors">
-                        <i data-lucide="github" class="w-4 h-4"></i>
-                        <span>GitHub</span>
-                    </a>
-                    <a href="https://twitter.com/Trent_Sterling" class="flex items-center space-x-2 hover:text-[#1DA1F2] transition-colors">
-                        <i data-lucide="twitter" class="w-4 h-4"></i>
-                        <span>Twitter</span>
-                    </a>
-                    <a href="https://blog.tront.xyz" class="flex items-center space-x-2 hover:text-orange-400 transition-colors">
-                        <i data-lucide="book-open" class="w-4 h-4"></i>
-                        <span>Blog</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+    <footer>
+        <p>
+            Created by <a href="https://tront.xyz">Trent Sterling</a>. 
+            Come say hi on <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>.
+        </p>
     </footer>
 
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
-    <script>
-        lucide.createIcons();
-    </script>
 </body>
 </html>
