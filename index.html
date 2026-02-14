@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpatialHash | High-Performance Unity Spatial Partitioning</title>
+    <meta name="description" content="A high-performance, generic spatial hash for Unity. Optimized for dynamic objects, networking, and AOI.">
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        pre, code { font-family: 'Fira Code', monospace; }
+        .prose code { 
+            background-color: #f3f4f6; 
+            padding: 0.2rem 0.4rem; 
+            border-radius: 0.25rem; 
+            font-size: 0.875em;
+        }
+        .prose pre { 
+            background-color: #1f2937; 
+            color: #f9fafb;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .prose h1 { font-weight: 800; font-size: 2.25rem; margin-bottom: 1.5rem; color: #111827; }
+        .prose h2 { font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose p { margin-bottom: 1.25rem; line-height: 1.75; color: #4b5563; }
+        .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+        .prose li { margin-bottom: 0.5rem; color: #4b5563; }
+        .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; font-style: italic; color: #1d4ed8; background: #eff6ff; padding-top: 0.5rem; padding-bottom: 0.1rem; margin-bottom: 1.25rem; }
+        .prose a { color: #2563eb; text-decoration: underline; }
+        .prose a:hover { color: #1d4ed8; }
+        .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; }
+        .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+        .prose th { background-color: #f9fafb; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-xl">S</div>
+                <span class="font-extrabold text-xl tracking-tight text-slate-900">SpatialHash</span>
+            </div>
+            <div class="flex items-center space-x-6 text-sm font-medium text-slate-600">
+                <a href="spatialhash_blog.md" class="hover:text-blue-600 transition-colors">Blog</a>
+                <a href="https://github.com/tront/spatialhash" class="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-all">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header / Hero -->
+    <header class="bg-white border-b border-slate-200 py-12">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 italic">spatialhash</h1>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto">High-performance spatial partitioning for Unity. 100x faster proximity checks for your games.</p>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        <div id="content" class="prose max-w-none bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-200">
+            <!-- Markdown content will be loaded here -->
+            <div class="flex justify-center py-12">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 text-center text-slate-400 text-sm">
+        <p>© 2026 spatialhash | Created for the community</p>
+    </footer>
+
+    <script>
+        async function loadMarkdown() {
+            try {
+                const response = await fetch('README.md');
+                const text = await response.text();
+                // Strip the H1 from the readme since we have it in the hero
+                const content = text.replace(/^# .*
+/, '');
+                document.getElementById('content').innerHTML = marked.parse(content);
+            } catch (err) {
+                document.getElementById('content').innerHTML = '<p class="text-red-500 text-center">Failed to load content. Please ensure README.md exists.</p>';
+            }
+        }
+        loadMarkdown();
+    </script>
+</body>
+</html>
