@@ -18,7 +18,7 @@
 
     <style>
         :root {
-            /* Default: Trent's Premium Gold/OLED Palette */
+            /* Themes: Background, Surface, Text, TextDim, Accent, AccentMuted, AccentBG, Border */
             --bg: #000000;
             --surface: #0a0a0a;
             --surface-hover: #141414;
@@ -28,56 +28,82 @@
             --accent-muted: #9a6700;
             --accent-bg: rgba(255, 215, 0, 0.1);
             --border: #1f1f1f;
+            --link: var(--accent);
         }
 
-        [data-theme="cyber"] {
-            --accent: #00f2ff;
-            --accent-muted: #008188;
-            --accent-bg: rgba(0, 242, 255, 0.1);
+        [data-theme="cyber-neon"] {
+            --bg: #050505;
+            --surface: #0f0f1a;
+            --text: #ffffff;
+            --text-dim: #8888aa;
+            --accent: #ff00ff;
+            --accent-muted: #aa00aa;
+            --accent-bg: rgba(255, 0, 255, 0.1);
+            --border: #2a1a3a;
         }
 
-        [data-theme="emerald"] {
-            --accent: #10b981;
-            --accent-muted: #065f46;
-            --accent-bg: rgba(16, 185, 129, 0.1);
+        [data-theme="pastel-dream"] {
+            --bg: #fdf6ff;
+            --surface: #ffffff;
+            --text: #4a3a5a;
+            --text-dim: #8a7a9a;
+            --accent: #ff7eb9;
+            --accent-muted: #d9669b;
+            --accent-bg: rgba(255, 126, 185, 0.1);
+            --border: #f0e0f5;
         }
 
-        [data-theme="rose"] {
-            --accent: #f43f5e;
-            --accent-muted: #9f1239;
-            --accent-bg: rgba(244, 63, 94, 0.1);
+        [data-theme="matrix"] {
+            --bg: #000000;
+            --surface: #050505;
+            --text: #00ff41;
+            --text-dim: #008f11;
+            --accent: #00ff41;
+            --accent-muted: #003b00;
+            --accent-bg: rgba(0, 255, 65, 0.05);
+            --border: #003b00;
         }
 
-        [data-theme="amethyst"] {
-            --accent: #a855f7;
-            --accent-muted: #7e22ce;
-            --accent-bg: rgba(168, 85, 247, 0.1);
+        [data-theme="paper-light"] {
+            --bg: #ffffff;
+            --surface: #f9f9f9;
+            --text: #111111;
+            --text-dim: #555555;
+            --accent: #0066cc;
+            --accent-muted: #004499;
+            --accent-bg: rgba(0, 102, 204, 0.05);
+            --border: #eeeeee;
         }
 
-        [data-theme="amber"] {
-            --accent: #f59e0b;
-            --accent-muted: #b45309;
-            --accent-bg: rgba(245, 158, 11, 0.1);
-        }
-
-        [data-theme="slate"] {
-            --accent: #94a3b8;
-            --accent-muted: #475569;
-            --accent-bg: rgba(148, 163, 184, 0.1);
+        [data-theme="deep-slate"] {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --accent-muted: #0ea5e9;
+            --accent-bg: rgba(56, 189, 248, 0.1);
+            --border: #334155;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: background 0.3s ease; scroll-behavior: smooth; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: all 0.3s ease; scroll-behavior: smooth; }
+
+        /* Links */
+        a { color: var(--link); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        a:hover { color: var(--text); }
 
         /* Theme Switcher */
-        .theme-switcher { display: flex; gap: 0.5rem; align-items: center; }
-        .theme-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; transition: transform 0.2s; }
+        .theme-switcher { display: flex; gap: 0.4rem; align-items: center; background: var(--surface); padding: 0.4rem; border-radius: 99px; border: 1px solid var(--border); }
+        .theme-btn { width: 18px; height: 18px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; position: relative; }
         .theme-btn:hover { transform: scale(1.2); }
-        .theme-btn.active { border-color: white; }
+        .theme-btn.active { border-color: var(--text); box-shadow: 0 0 10px var(--accent); }
+        .theme-btn::after { content: attr(title); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--surface); color: var(--text); font-size: 10px; padding: 2px 6px; border-radius: 4px; opacity: 0; pointer-events: none; transition: opacity 0.2s; white-space: nowrap; border: 1px solid var(--border); margin-bottom: 8px; }
+        .theme-btn:hover::after { opacity: 1; }
 
-        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; position: sticky; top: 0; background: var(--bg); z-index: 100; }
+        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; position: sticky; top: 0; background: var(--bg); z-index: 100; transition: background 0.3s; }
         .nav-links { display: flex; gap: 2rem; }
-        nav a { color: var(--text-dim); text-decoration: none; transition: all 0.2s; }
+        nav a { color: var(--text-dim); }
         nav a:hover { color: var(--accent); }
 
         h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1rem; color: var(--accent); transition: color 0.3s; }
@@ -130,14 +156,12 @@
             <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
         </div>
         <div class="theme-switcher">
-            <span style="font-size: 0.7rem; color: var(--text-dim); margin-right: 0.5rem; letter-spacing: 0.1em;">THEME</span>
-            <div class="theme-btn active" style="background: #FFD700;" onclick="setTheme('gold', this)" title="Gold"></div>
-            <div class="theme-btn" style="background: #00f2ff;" onclick="setTheme('cyber', this)" title="Cyber"></div>
-            <div class="theme-btn" style="background: #10b981;" onclick="setTheme('emerald', this)" title="Emerald"></div>
-            <div class="theme-btn" style="background: #f43f5e;" onclick="setTheme('rose', this)" title="Rose"></div>
-            <div class="theme-btn" style="background: #a855f7;" onclick="setTheme('amethyst', this)" title="Amethyst"></div>
-            <div class="theme-btn" style="background: #f59e0b;" onclick="setTheme('amber', this)" title="Amber"></div>
-            <div class="theme-btn" style="background: #94a3b8;" onclick="setTheme('slate', this)" title="Slate"></div>
+            <div class="theme-btn active" style="background: #FFD700;" onclick="setTheme('gold', this)" title="OLED Gold"></div>
+            <div class="theme-btn" style="background: #ff00ff;" onclick="setTheme('cyber-neon', this)" title="Cyber Neon"></div>
+            <div class="theme-btn" style="background: #ff7eb9;" onclick="setTheme('pastel-dream', this)" title="Pastel Dream"></div>
+            <div class="theme-btn" style="background: #00ff41;" onclick="setTheme('matrix', this)" title="Matrix"></div>
+            <div class="theme-btn" style="background: #0066cc;" onclick="setTheme('paper-light', this)" title="Paper Light"></div>
+            <div class="theme-btn" style="background: #38bdf8;" onclick="setTheme('deep-slate', this)" title="Deep Slate"></div>
         </div>
     </nav>
 
