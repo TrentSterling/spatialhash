@@ -221,6 +221,8 @@
         <a href="#part4">PART 4: EXTREME</a>
         <span style="color: var(--border)">|</span>
         <a href="#part5">PART 5: GAME</a>
+        <span style="color: var(--border)">|</span>
+        <a href="#toolkit">PART 6: TOOLKIT</a>
     </div>
 
     <header>
@@ -233,6 +235,11 @@
             <span>Feb 14, 2026</span>
             <span>•</span>
             <span style="color: var(--accent); font-weight: 800;">High-Performance Technical Series</span>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: center;">
+            <a href="#part1" class="bg-accent text-bg px-8 py-4 rounded-2xl font-black tracking-widest text-xs hover:scale-105 transition-all shadow-lg shadow-accent/20">START LEARNING</a>
+            <a href="#toolkit" class="border border-border bg-surface text-text px-8 py-4 rounded-2xl font-black tracking-widest text-xs hover:bg-surface-hover transition-all">DOWNLOAD API</a>
         </div>
     </header>
 
@@ -460,6 +467,47 @@ struct SpatialQueryJob : IJobParallelFor {
         <div class="learning-step" style="margin-top: 4rem;">
             <h3 style="color: var(--text);">Tutorial Review:</h3>
             <p>Every floating pixel and enemy in the arena above is registered into a custom Spatial Hash. The ship queries its local cells to attract pixels (Magnet) and bullets query their cells to destroy enemies. The result is a chaotic experience running at a solid 60fps.</p>
+        </div>
+    </div>
+
+    <!-- PART 6: THE TOOLKIT -->
+    <div id="toolkit">
+        <div class="part-header">
+            <span class="step-label">PART SIX</span>
+            <h2 class="part-title">The Toolkit</h2>
+            <p style="max-width: 600px; margin: 1rem auto; color: var(--text-dim);">Ready-to-use API and modules for your Unity projects.</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <h4>SpatialHash.cs</h4>
+                    <span class="badge" style="font-size: 0.6rem; background: var(--accent); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-weight: 900;">CORE API</span>
+                </div>
+                <p style="font-size: 0.95rem; margin-bottom: 1.5rem;">The generic, non-allocating 3D hash engine. Support for AABBs, Sphere queries, and Bucket Pooling.</p>
+                <a href="https://github.com/TrentSterling/spatialhash/blob/master/spatialhash/SpatialHash.cs" target="_blank" class="text-accent font-black tracking-widest text-xs">VIEW SOURCE &rarr;</a>
+            </div>
+            <div class="feature">
+                <h4>NetworkAOI.cs</h4>
+                <p style="font-size: 0.95rem; margin-bottom: 1.5rem;">A plug-and-play module for <strong>PurrNet</strong>, FishNet, and Mirror. Optimized Area of Interest management.</p>
+                <a href="https://github.com/TrentSterling/spatialhash/blob/master/spatialhash/NetworkAOIManager.cs" target="_blank" class="text-accent font-black tracking-widest text-xs">VIEW SOURCE &rarr;</a>
+            </div>
+            <div class="feature">
+                <h4>RoomManager.cs</h4>
+                <p style="font-size: 0.95rem; margin-bottom: 1.5rem;">The logic behind <strong>CellGen</strong>. Handle portal-based visibility and room-to-room state synchronization.</p>
+                <a href="https://github.com/TrentSterling/spatialhash/blob/master/spatialhash/RoomManager.cs" target="_blank" class="text-accent font-black tracking-widest text-xs">VIEW SOURCE &rarr;</a>
+            </div>
+            <div class="feature">
+                <h4>Samples Package</h4>
+                <p style="font-size: 0.95rem; margin-bottom: 1.5rem;">Complete Unity samples including the Collision, Pathfinding, and World Streaming demos from this tutorial.</p>
+                <a href="https://github.com/TrentSterling/spatialhash/tree/master/spatialhash/Examples" target="_blank" class="text-accent font-black tracking-widest text-xs">BROWSE SAMPLES &rarr;</a>
+            </div>
+        </div>
+
+        <div class="learning-step" style="text-align: center;">
+            <h3 style="color: var(--text); margin-top: 0;">Clone the Repository</h3>
+            <p>Get the entire Masterclass project, including the visualizers and the game arena code.</p>
+<pre style="display: inline-block; text-align: left; padding: 1.5rem 3rem;"><code class="language-bash">git clone https://github.com/TrentSterling/spatialhash.git</code></pre>
         </div>
     </div>
 
