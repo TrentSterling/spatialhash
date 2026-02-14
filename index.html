@@ -122,7 +122,7 @@ private int GetKey(Vector3 pos) {
         <h2>Zero Allocation: The Non-Allocating Secret</h2>
         <p>Garbage Collection (GC) spikes kill games. The secret to a <strong>Non-Allocating</strong> hash is avoiding `new` in your hot loops.</p>
         
-        <p><strong>The Trap:</strong> Returning a `new List<T>` every query. <br/><strong>The Fix:</strong> Fulfilling a list provided by the caller.</p>
+        <p><strong>The Trap:</strong> Returning a `new List&lt;T&gt;` every query. <br/><strong>The Fix:</strong> Fulfilling a list provided by the caller.</p>
 
 <pre><code class="language-csharp">// The "Out List" Pattern
 public void Query(Vector3 pos, float radius, List&lt;T&gt; results) {
@@ -130,6 +130,21 @@ public void Query(Vector3 pos, float radius, List&lt;T&gt; results) {
     
     // Get cells in radius...
     // results.Add(item);
+}</code></pre>
+
+        <h3>Bucket Pooling</h3>
+        <p>Even if we use the "Out List" pattern for queries, we still have internal lists for each grid cell. If we <code>new List&lt;T&gt;()</code> every time an object enters an empty cell, we're still creating garbage.</p>
+        
+        <p><strong>The Solution:</strong> A simple <strong>List Pool</strong>. When a cell becomes empty, we don't discard the list; we <code>Clear()</code> it and push it into a <code>Stack&lt;List&lt;T&gt;&gt;</code> to be recycled by the next cell.</p>
+
+<pre><code class="language-csharp">// Recycling internal memory
+private List&lt;T&gt; GetNewList() {
+    return _pool.Count > 0 ? _pool.Pop() : new List&lt;T&gt;();
+}
+
+private void RecycleList(List&lt;T&gt; list) {
+    list.Clear();
+    _pool.Push(list);
 }</code></pre>
 
         <h2>PurrNet Integration</h2>

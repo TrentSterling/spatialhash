@@ -12,12 +12,26 @@ namespace SpatialHash
         private readonly float _cellSize;
         private readonly Dictionary<int, List<T>> _grid;
         private readonly Dictionary<T, Vector3> _positionMap;
+        private readonly Stack<List<T>> _pool;
 
         public SpatialHash(float cellSize)
         {
             _cellSize = cellSize;
             _grid = new Dictionary<int, List<T>>();
             _positionMap = new Dictionary<T, Vector3>();
+            _pool = new Stack<List<T>>();
+        }
+
+        private List<T> GetNewList()
+        {
+            if (_pool.Count > 0) return _pool.Pop();
+            return new List<T>();
+        }
+
+        private void RecycleList(List<T> list)
+        {
+            list.Clear();
+            _pool.Push(list);
         }
 
         private int GetCellKey(Vector3 position)
@@ -40,12 +54,13 @@ namespace SpatialHash
         public void Insert(T item, Vector3 position)
         {
             int key = GetCellKey(position);
-            if (!_grid.ContainsKey(key))
+            if (!_grid.TryGetValue(key, out List<T> cell))
             {
-                _grid[key] = new List<T>();
+                cell = GetNewList();
+                _grid[key] = cell;
             }
 
-            _grid[key].Add(item);
+            cell.Add(item);
             _positionMap[item] = position;
         }
 
@@ -60,6 +75,7 @@ namespace SpatialHash
                     if (cell.Count == 0)
                     {
                         _grid.Remove(key);
+                        RecycleList(cell);
                     }
                 }
                 _positionMap.Remove(item);
@@ -79,14 +95,19 @@ namespace SpatialHash
                     if (_grid.TryGetValue(oldKey, out List<T> oldCell))
                     {
                         oldCell.Remove(item);
-                        if (oldCell.Count == 0) _grid.Remove(oldKey);
+                        if (oldCell.Count == 0)
+                        {
+                            _grid.Remove(oldKey);
+                            RecycleList(oldCell);
+                        }
                     }
 
-                    if (!_grid.ContainsKey(newKey))
+                    if (!_grid.TryGetValue(newKey, out List<T> newCell))
                     {
-                        _grid[newKey] = new List<T>();
+                        newCell = GetNewList();
+                        _grid[newKey] = newCell;
                     }
-                    _grid[newKey].Add(item);
+                    newCell.Add(item);
                 }
                 
                 _positionMap[item] = newPosition;
@@ -175,6 +196,10 @@ namespace SpatialHash
 
         public void Clear()
         {
+            foreach (var cell in _grid.Values)
+            {
+                RecycleList(cell);
+            }
             _grid.Clear();
             _positionMap.Clear();
         }
