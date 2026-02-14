@@ -1,0 +1,26 @@
+# Unity folders
+[Library]/
+[Temp]/
+[Obj]/
+[Build]/
+[Builds]/
+[Logs]/
+[MemoryCaptures]/
+
+# Asset Meta files (Optional: keep if you want to share meta files, but usually ignored in simple code repos)
+# *.meta
+
+# VS/Rider/Generated files
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.suo
+*.sln.docstates
+
+# OS files
+.DS_Store
+Thumbs.db
