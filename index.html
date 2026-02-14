@@ -733,7 +733,7 @@ struct SpatialQueryJob : IJobParallelFor {
                     bullets.push({ x: player.x, y: player.y, vx: (dx/dist)*10, vy: (dy/dist)*10, r: 5 });
                 }
             }
-            if(frame % 15 === 0) {
+            if(frame % 15 === 0 && enemies.length < 50) {
                 const side = Math.floor(Math.random()*4); let ex, ey;
                 if(side === 0) { ex = Math.random()*800; ey = -20; } else if(side === 1) { ex = 820; ey = Math.random()*600; }
                 else if(side === 2) { ex = Math.random()*800; ey = 620; } else { ex = -20; ey = Math.random()*600; }
@@ -751,7 +751,16 @@ struct SpatialQueryJob : IJobParallelFor {
                 const hits = []; spatialHash.query(b.x, b.y, b.r + 20, hits, 'combat');
                 hits.forEach(h => {
                     if(enemies.includes(h)) {
-                        for(let k=0; k<25; k++) pixels.push({ x: h.x, y: h.y, vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, active: false, color: `hsl(${Math.random()*360}, 70%, 60%)` });
+                        for(let k=0; k<25; k++) {
+                            if (pixels.length < 5000) {
+                                pixels.push({ 
+                                    x: h.x, y: h.y, 
+                                    vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, 
+                                    active: false, color: `hsl(${Math.random()*360}, 70%, 60%)`,
+                                    life: 1000 // Lifetime counter
+                                });
+                            }
+                        }
                         enemies.splice(enemies.indexOf(h), 1);
                     }
                 });
@@ -764,7 +773,14 @@ struct SpatialQueryJob : IJobParallelFor {
                     if(dist<20) { pixels.splice(pixels.indexOf(p), 1); score++; document.getElementById('gameScore').innerText = score; }
                 }
             });
-            pixels.forEach(p => { p.x += p.vx; p.y += p.vy; p.vx *= 0.92; p.vy *= 0.92; });
+            // Move and Despawn Pixels
+            for (let i = pixels.length - 1; i >= 0; i--) {
+                const p = pixels[i];
+                p.x += p.vx; p.y += p.vy;
+                p.vx *= 0.92; p.vy *= 0.92;
+                p.life--;
+                if (p.life <= 0) pixels.splice(i, 1);
+            }
             gCtx.fillStyle = window.currentBg; gCtx.fillRect(0,0,800,600);
             gCtx.strokeStyle = window.currentGrid;
             for(let x=0; x<800; x+=40) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,600); gCtx.stroke(); }
