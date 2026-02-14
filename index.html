@@ -132,19 +132,27 @@
     </header>
 
     <section>
-        <h2>The Interactive Concept</h2>
-        <p>Move your mouse over the grid below. The **Red Square** is your player. The **Gold Circle** is your sync/query radius. Notice how we only check objects inside the **Bright Cells**.</p>
+        <h2>Interactive Bucket Visualizer</h2>
+        <p>This demo uses <strong>AABBs (Boxes)</strong> instead of points. Tune the <strong>Cell Size</strong> slider to see the "Sweet Spot"—where the grid is small enough to filter out far-away objects, but large enough that we aren't querying thousands of empty cells.</p>
         
         <div class="visualizer-container">
+            <div style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                <label for="cellSizeRange" style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">CELL SIZE:</label>
+                <input type="range" id="cellSizeRange" min="20" max="200" value="60" style="width: 200px; accent-color: var(--accent);">
+                <span id="cellSizeVal" style="font-family: 'JetBrains Mono'; color: var(--accent);">60</span>
+            </div>
             <canvas id="hashVis" width="800" height="500"></canvas>
             <div class="vis-controls">
-                <span>Total Objects: <strong id="objCount">0</strong></span>
-                <span>Checks: <strong id="checkCount">0</strong> / <span id="totalPossible">0</span></span>
-                <span style="color: var(--gold)">Savings: <strong id="savings">0%</strong></span>
+                <span>AABBs: <strong id="objCount">0</strong></span>
+                <span>Narrow-Phase Checks: <strong id="checkCount">0</strong></span>
+                <span style="color: var(--accent)">Optimization: <strong id="savings">0%</strong></span>
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono';">
+                Brute Force ($N^2$) would be <span id="bruteForce">0</span> checks per frame.
             </div>
         </div>
 
-        <p>Without the hash, you'd check every single dot (O(N²)). With the hash, you only check the ones in the relevant "buckets."</p>
+        <p>The <strong>Bright Gold Boxes</strong> are the only ones being "Narrow-Phase" tested. Every other box in the dark cells is ignored completely by the CPU.</p>
 
         <h2>How It Works (The Math)</h2>
         <p>We divide 3D space into a grid. We map a position to a cell ID using a simple integer division. This is the fastest way to partition space.</p>
@@ -248,26 +256,38 @@ private void RecycleList(List&lt;T&gt; list) {
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            // Update global accent for canvas
             const style = getComputedStyle(document.body);
             window.currentAccent = style.getPropertyValue('--accent').trim();
         }
 
         const canvas = document.getElementById('hashVis');
         const ctx = canvas.getContext('2d');
-        const cellSize = 50;
-        const radius = 80;
+        const cellSizeSlider = document.getElementById('cellSizeRange');
+        const cellSizeDisplay = document.getElementById('cellSizeVal');
+        
+        let cellSize = 60;
+        const radius = 100;
         let mouseX = 400;
         let mouseY = 250;
         const objects = [];
-        const numObjects = 200;
+        const numObjects = 150;
 
         window.currentAccent = '#FFD700';
 
-        // Initialize random objects
+        // Initialize random AABBs
         for (let i = 0; i < numObjects; i++) {
-            objects.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height });
+            objects.push({ 
+                x: Math.random() * canvas.width, 
+                y: Math.random() * canvas.height,
+                w: 10 + Math.random() * 20,
+                h: 10 + Math.random() * 20
+            });
         }
+
+        cellSizeSlider.addEventListener('input', (e) => {
+            cellSize = parseInt(e.target.value);
+            cellSizeDisplay.innerText = cellSize;
+        });
 
         canvas.addEventListener('mousemove', (e) => {
             const rect = canvas.getBoundingClientRect();
@@ -283,7 +303,7 @@ private void RecycleList(List&lt;T&gt; list) {
             const range = Math.ceil(radius / cellSize);
 
             // Draw Grid
-            ctx.strokeStyle = '#1f1f1f';
+            ctx.strokeStyle = '#1a1a1a';
             ctx.lineWidth = 1;
             for (let x = 0; x <= canvas.width; x += cellSize) {
                 ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
@@ -293,44 +313,55 @@ private void RecycleList(List&lt;T&gt; list) {
             }
 
             // Highlight Active Cells
-            ctx.fillStyle = window.currentAccent + '1A'; // 1A is ~10% opacity in hex
+            ctx.fillStyle = window.currentAccent + '1A';
             for (let x = gridX - range; x <= gridX + range; x++) {
                 for (let y = gridY - range; y <= gridY + range; y++) {
                     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                 }
             }
 
-            // Draw Objects
+            // Draw Objects (AABBs)
             let checks = 0;
             objects.forEach(obj => {
-                const objGridX = Math.floor(obj.x / cellSize);
-                const objGridY = Math.floor(obj.y / cellSize);
+                // Check if any part of the AABB touches the active cell range
+                const objMinX = Math.floor(obj.x / cellSize);
+                const objMaxX = Math.floor((obj.x + obj.w) / cellSize);
+                const objMinY = Math.floor(obj.y / cellSize);
+                const objMaxY = Math.floor((obj.y + obj.h) / cellSize);
                 
-                const isChecked = objGridX >= gridX - range && objGridX <= gridX + range &&
-                                  objGridY >= gridY - range && objGridY <= gridY + range;
+                const isPossible = objMaxX >= gridX - range && objMinX <= gridX + range &&
+                                   objMaxY >= gridY - range && objMinY <= gridY + range;
                 
-                if (isChecked) checks++;
+                if (isPossible) checks++;
 
-                ctx.fillStyle = isChecked ? window.currentAccent : '#333';
-                ctx.beginPath();
-                ctx.arc(obj.x, obj.y, isChecked ? 3 : 2, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.strokeStyle = isPossible ? window.currentAccent : '#333';
+                ctx.lineWidth = isPossible ? 2 : 1;
+                ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
+                
+                if (isPossible) {
+                    ctx.fillStyle = window.currentAccent + '33';
+                    ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+                }
             });
 
             // Draw Player & Radius
             ctx.strokeStyle = window.currentAccent;
-            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
             ctx.beginPath();
             ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
             ctx.stroke();
+            ctx.setLineDash([]);
 
             ctx.fillStyle = '#ff4444';
-            ctx.fillRect(mouseX - 5, mouseY - 5, 10, 10);
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ff4444';
+            ctx.fillRect(mouseX - 6, mouseY - 6, 12, 12);
+            ctx.shadowBlur = 0;
 
-            // Update UI
+            // Update Stats
             document.getElementById('objCount').innerText = numObjects;
             document.getElementById('checkCount').innerText = checks;
-            document.getElementById('totalPossible').innerText = numObjects;
+            document.getElementById('bruteForce').innerText = (numObjects).toLocaleString();
             document.getElementById('savings').innerText = Math.round((1 - checks / numObjects) * 100) + '%';
 
             requestAnimationFrame(draw);
