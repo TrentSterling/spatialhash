@@ -567,6 +567,7 @@ private void RecycleList(List&lt;T&gt; list) {
 
         window.startGame = () => {
             document.getElementById('gameOverlay').style.display = 'none';
+            // Initialize random colors for pixels if they don't have them
             gameRunning = true;
             loop();
         };
@@ -575,16 +576,44 @@ private void RecycleList(List&lt;T&gt; list) {
             if(!gameRunning) return;
             frame++;
             
+            // Rebuild Hash for dynamic collisions at start of frame
+            spatialHash.clear();
+            enemies.forEach(e => spatialHash.insert(e));
+            pixels.forEach(p => spatialHash.insert(p));
+
             // 1. Update Entities
             const rect = gCanvas.getBoundingClientRect();
-            // Mouse follower (simple player lerp)
-            // Note: mouse listener is shared from page level
             
-            // Auto shoot
-            if(frame % 10 === 0) bullets.push({ x: player.x, y: player.y, vx: 0, vy: -7, r: 4 });
+            // Auto shoot towards NEAREST enemy using Hash
+            if(frame % 8 === 0) {
+                const targets = [];
+                spatialHash.query(player.x, player.y, 400, targets);
+                let nearest = null;
+                let minDist = Infinity;
+                targets.forEach(t => {
+                    if (enemies.includes(t)) {
+                        const d = Math.sqrt((t.x-player.x)**2 + (t.y-player.y)**2);
+                        if (d < minDist) { minDist = d; nearest = t; }
+                    }
+                });
+
+                if (nearest) {
+                    const dx = nearest.x - player.x;
+                    const dy = nearest.y - player.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    bullets.push({ 
+                        x: player.x, y: player.y, 
+                        vx: (dx/dist) * 8, vy: (dy/dist) * 8, 
+                        r: 4 
+                    });
+                } else {
+                    // Default fire up if no enemies
+                    bullets.push({ x: player.x, y: player.y, vx: 0, vy: -8, r: 4 });
+                }
+            }
 
             // Spawn enemies
-            if(frame % 60 === 0) {
+            if(frame % 50 === 0) {
                 const side = Math.floor(Math.random()*4);
                 let ex, ey;
                 if(side === 0) { ex = Math.random()*800; ey = -20; }
@@ -596,8 +625,11 @@ private void RecycleList(List&lt;T&gt; list) {
 
             // Move Bullets
             for(let i=bullets.length-1; i>=0; i--) {
+                bullets[i].x += bullets[i].vx;
                 bullets[i].y += bullets[i].vy;
-                if(bullets[i].y < -50) bullets.splice(i, 1);
+                if(bullets[i].y < -50 || bullets[i].y > 650 || bullets[i].x < -50 || bullets[i].x > 850) {
+                    bullets.splice(i, 1);
+                }
             }
 
             // Move Enemies (simple seek)
@@ -605,36 +637,37 @@ private void RecycleList(List&lt;T&gt; list) {
                 const dx = player.x - e.x;
                 const dy = player.y - e.y;
                 const dist = Math.sqrt(dx*dx + dy*dy);
-                e.x += (dx/dist) * 1.5;
-                e.y += (dy/dist) * 1.5;
+                e.x += (dx/dist) * 1.8;
+                e.y += (dy/dist) * 1.8;
             });
-
-            // Rebuild Hash for dynamic collisions
-            spatialHash.clear();
-            enemies.forEach(e => spatialHash.insert(e));
-            pixels.forEach(p => spatialHash.insert(p));
 
             // 2. Resolve Collisions using Hash
             // Bullets vs Enemies
-            bullets.forEach((b, bIdx) => {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const b = bullets[i];
                 const hits = [];
                 spatialHash.query(b.x, b.y, b.r + 10, hits);
-                hits.forEach(h => {
+                let hitEnemy = false;
+                for (let h of hits) {
                     if(enemies.includes(h)) {
                         h.hp--;
-                        bullets.splice(bIdx, 1);
+                        hitEnemy = true;
                         if(h.hp <= 0) {
-                            // Explosion into pixels!
-                            for(let k=0; k<15; k++) pixels.push({ 
-                                x: h.x, y: h.y, 
-                                vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4,
-                                active: false 
-                            });
+                            for(let k=0; k<12; k++) {
+                                pixels.push({ 
+                                    x: h.x, y: h.y, 
+                                    vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
+                                    active: false,
+                                    color: `hsl(${Math.random() * 360}, 70%, 60%)`
+                                });
+                            }
                             enemies.splice(enemies.indexOf(h), 1);
                         }
+                        break;
                     }
-                });
-            });
+                }
+                if (hitEnemy) bullets.splice(i, 1);
+            }
 
             // Player Magnet vs Pixels
             const pulled = [];
@@ -645,8 +678,9 @@ private void RecycleList(List&lt;T&gt; list) {
                     const dx = player.x - p.x;
                     const dy = player.y - p.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
-                    p.vx += (dx/dist) * 0.5;
-                    p.vy += (dy/dist) * 0.5;
+                    const speed = Math.max(2, (player.mag - dist) * 0.1);
+                    p.vx += (dx/dist) * speed;
+                    p.vy += (dy/dist) * speed;
                     
                     if(dist < 15) {
                         pixels.splice(pixels.indexOf(p), 1);
@@ -659,7 +693,7 @@ private void RecycleList(List&lt;T&gt; list) {
             // Move Pixels
             pixels.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
-                p.vx *= 0.98; p.vy *= 0.98; // Friction
+                p.vx *= 0.94; p.vy *= 0.94; // Higher friction for better magnet feel
             });
 
             // 3. Render
@@ -667,32 +701,53 @@ private void RecycleList(List&lt;T&gt; list) {
             gCtx.fillRect(0,0,800,600);
 
             // Draw Hash Grid (Subtle)
-            gCtx.strokeStyle = '#111';
+            gCtx.strokeStyle = '#0a0a0a';
             for(let x=0; x<800; x+=40) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,600); gCtx.stroke(); }
             for(let y=0; y<600; y+=40) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(800,y); gCtx.stroke(); }
 
             // Draw Entities
             pixels.forEach(p => {
-                gCtx.fillStyle = p.active ? window.currentAccent : '#333';
-                gCtx.fillRect(p.x-1, p.y-1, 2, 2);
+                if (p.active) {
+                    // Neon Flash
+                    gCtx.fillStyle = `hsl(${(frame * 10) % 360}, 100%, 70%)`;
+                    gCtx.shadowBlur = 5;
+                    gCtx.shadowColor = gCtx.fillStyle;
+                } else {
+                    gCtx.fillStyle = p.color || '#333';
+                    gCtx.shadowBlur = 0;
+                }
+                gCtx.fillRect(p.x-1.5, p.y-1.5, 3, 3);
             });
+            gCtx.shadowBlur = 0;
+
             enemies.forEach(e => {
                 gCtx.strokeStyle = '#ff4444';
                 gCtx.lineWidth = 2;
                 gCtx.strokeRect(e.x-10, e.y-10, 20, 20);
+                // Health bar
+                gCtx.fillStyle = '#ff4444';
+                gCtx.fillRect(e.x-10, e.y-15, (e.hp/3)*20, 2);
             });
+
             bullets.forEach(b => {
                 gCtx.fillStyle = window.currentAccent;
+                gCtx.shadowBlur = 8;
+                gCtx.shadowColor = window.currentAccent;
                 gCtx.beginPath(); gCtx.arc(b.x, b.y, b.r, 0, Math.PI*2); gCtx.fill();
             });
+            gCtx.shadowBlur = 0;
 
             // Draw Player
             gCtx.strokeStyle = window.currentAccent;
             gCtx.setLineDash([5, 5]);
             gCtx.beginPath(); gCtx.arc(player.x, player.y, player.mag, 0, Math.PI*2); gCtx.stroke();
             gCtx.setLineDash([]);
+            
             gCtx.fillStyle = '#ff4444';
+            gCtx.shadowBlur = 15;
+            gCtx.shadowColor = '#ff4444';
             gCtx.fillRect(player.x-10, player.y-10, 20, 20);
+            gCtx.shadowBlur = 0;
 
             requestAnimationFrame(loop);
         }
