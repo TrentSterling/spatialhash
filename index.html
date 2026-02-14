@@ -41,32 +41,21 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: background 0.3s ease; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; transition: background 0.3s ease; scroll-behavior: smooth; }
 
         /* Theme Switcher */
-        .theme-switcher {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .theme-btn {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid var(--border);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+        .theme-switcher { display: flex; gap: 0.5rem; align-items: center; }
+        .theme-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; transition: transform 0.2s; }
         .theme-btn:hover { transform: scale(1.2); }
         .theme-btn.active { border-color: white; }
 
-        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; position: sticky; top: 0; background: var(--bg); z-index: 100; }
         .nav-links { display: flex; gap: 2rem; }
         nav a { color: var(--text-dim); text-decoration: none; transition: all 0.2s; }
         nav a:hover { color: var(--accent); }
 
-        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 1rem; color: var(--accent); transition: color 0.3s; }
-        h2 { font-size: 2rem; font-weight: 700; margin: 4rem 0 1.5rem; border-left: 4px solid var(--accent); padding-left: 1.5rem; letter-spacing: -0.02em; transition: border-color 0.3s; }
+        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1rem; color: var(--accent); transition: color 0.3s; }
+        h2 { font-size: 2rem; font-weight: 700; margin: 5rem 0 1.5rem; border-left: 4px solid var(--accent); padding-left: 1.5rem; letter-spacing: -0.02em; transition: border-color 0.3s; }
         h3 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--accent-muted); transition: color 0.3s; }
         
         p { margin-bottom: 1.5rem; font-size: 1.15rem; color: var(--text-dim); }
@@ -82,9 +71,9 @@
         pre code { background: none !important; padding: 0 !important; font-size: 0.9em !important; }
 
         /* Canvas Styles */
-        .visualizer-container { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin: 3rem 0; text-align: center; }
-        canvas { background: #050505; border-radius: 12px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; }
-        .vis-controls { margin-top: 1rem; color: var(--text-dim); font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; }
+        .visualizer-container { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 1.5rem; margin: 3rem 0; text-align: center; }
+        canvas { background: #050505; border-radius: 12px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; display: block; margin: 0 auto; }
+        .vis-controls { margin-top: 1rem; color: var(--text-dim); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; font-family: 'JetBrains Mono'; }
 
         .math-box { background: var(--accent-bg); border: 1px solid rgba(255, 215, 0, 0.2); padding: 2rem; border-radius: 16px; text-align: center; margin: 3rem 0; transition: background 0.3s; }
         .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--accent); transition: color 0.3s; }
@@ -95,6 +84,9 @@
 
         blockquote { background: var(--accent-bg); border-radius: 12px; padding: 2rem; margin: 3rem 0; border-left: 4px solid var(--accent); transition: background 0.3s, border-color 0.3s; }
         blockquote p { color: var(--text); font-style: italic; margin-bottom: 0; font-size: 1.25rem; }
+
+        .learning-step { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; }
+        .step-label { font-size: 0.7rem; font-weight: 800; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; }
 
         footer { margin-top: 8rem; padding: 4rem 0; border-top: 1px solid var(--border); text-align: center; }
         .footer-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
@@ -121,81 +113,70 @@
     </nav>
 
     <header>
-        <h1>Spatial Hashing <br/>Deep Dive.</h1>
-        <p class="subtitle">A visual and technical guide to high-performance partitioning in Unity.</p>
+        <h1>Spatial Hashing <br/>Optimization.</h1>
+        <p class="subtitle">A visual path from $O(N^2)$ brute force to million-particle performance.</p>
         <div class="meta">
             <img src="https://github.com/TrentSterling.png" alt="Trent Sterling">
             <span>By <strong>Trent Sterling</strong></span>
             <span>•</span>
-            <span style="color: var(--gold)">Tutorial & Interactive Visualizer</span>
+            <span style="color: var(--gold)">Interactive Dev Log</span>
         </div>
     </header>
 
-    <section>
-        <h2>Interactive Bucket Visualizer</h2>
-        <p>This demo uses <strong>AABBs (Boxes)</strong> instead of points. Tune the <strong>Cell Size</strong> slider to see the "Sweet Spot"—where the grid is small enough to filter out far-away objects, but large enough that we aren't querying thousands of empty cells.</p>
+    <!-- STEP 1 -->
+    <section id="step1">
+        <div class="step-label">Step 1: The Problem</div>
+        <h2>The $O(N^2)$ Trap</h2>
+        <p>If you check every bullet against every enemy, you are checking 1,000 against 1,000. That is <strong>1,000,000 operations</strong> per frame. This is the bottleneck that kills most Unity games.</p>
         
         <div class="visualizer-container">
-            <div style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 1rem;">
-                <label for="cellSizeRange" style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">CELL SIZE:</label>
-                <input type="range" id="cellSizeRange" min="20" max="200" value="60" style="width: 200px; accent-color: var(--accent);">
-                <span id="cellSizeVal" style="font-family: 'JetBrains Mono'; color: var(--accent);">60</span>
-            </div>
-            <canvas id="hashVis" width="800" height="500"></canvas>
+            <canvas id="vis1" width="800" height="400"></canvas>
             <div class="vis-controls">
-                <span>AABBs: <strong id="objCount">0</strong></span>
-                <span>Narrow-Phase Checks: <strong id="checkCount">0</strong></span>
-                <span style="color: var(--accent)">Optimization: <strong id="savings">0%</strong></span>
-            </div>
-            <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono';">
-                Brute Force ($N^2$) would be <span id="bruteForce">0</span> checks per frame.
+                <span>Brute Force: 150 vs 150</span>
+                <span>Checks: <strong style="color:#ff4444">22,500</strong></span>
+                <span>Complexity: <strong style="color:#ff4444">O(N²)</strong></span>
             </div>
         </div>
 
-        <p>The <strong>Bright Gold Boxes</strong> are the only ones being "Narrow-Phase" tested. Every other box in the dark cells is ignored completely by the CPU.</p>
+        <p>In this simple point cloud, a brute force search checks <strong>every single dot</strong>. It doesn't matter if the dot is across the screen; the CPU still does the math. We need to filter by <strong>proximity</strong> first.</p>
+    </section>
 
-        <h2>How It Works (The Math)</h2>
-        <p>We divide 3D space into a grid. We map a position to a cell ID using a simple integer division. This is the fastest way to partition space.</p>
-
+    <!-- STEP 2 -->
+    <section id="step2">
+        <div class="step-label">Step 2: The Grid</div>
+        <h2>Spatial Partitioning</h2>
+        <p>By dividing the world into a grid (buckets), we only check objects in our immediate neighborhood. The mapping is a simple integer division.</p>
+        
         <div class="math-box">
-            <div class="formula">CellIndex = floor(Position / CellSize)</div>
+            <div class="formula">Cell = floor(Position / CellSize)</div>
         </div>
 
-<pre><code class="language-csharp">// Converting 3D coordinates to a unique Integer Key
-private int GetKey(Vector3 pos) {
-    int x = Mathf.FloorToInt(pos.x / _cellSize);
-    int y = Mathf.FloorToInt(pos.y / _cellSize);
-    int z = Mathf.FloorToInt(pos.z / _cellSize);
-    
-    // Combine coordinates into one hash key
-    unchecked {
-        int hash = 17;
-        hash = hash * 23 + x;
-        hash = hash * 23 + y;
-        hash = hash * 23 + z;
-        return hash;
-    }
-}</code></pre>
+        <div class="visualizer-container">
+            <div style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                <label for="cellSize2" style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">CELL SIZE:</label>
+                <input type="range" id="cellSize2" min="20" max="200" value="60" style="width: 200px; accent-color: var(--accent);">
+                <span id="cellSizeVal2" style="font-family: 'JetBrains Mono'; color: var(--accent);">60</span>
+            </div>
+            <canvas id="vis2" width="800" height="400"></canvas>
+            <div class="vis-controls">
+                <span>AABBs: 150</span>
+                <span>Narrow-Phase Checks: <strong id="checkCount2">0</strong></span>
+                <span style="color: var(--accent)">Savings: <strong id="savings2">0%</strong></span>
+            </div>
+        </div>
 
-        <h2>Zero Allocation: The Non-Allocating Secret</h2>
-        <p>Garbage Collection (GC) spikes kill games. The secret to a <strong>Non-Allocating</strong> hash is avoiding `new` in your hot loops.</p>
-        
-        <p><strong>The Trap:</strong> Returning a `new List&lt;T&gt;` every query. <br/><strong>The Fix:</strong> Fulfilling a list provided by the caller.</p>
+        <p>The grid allows us to skip 80-90% of all calculations. We only bother with objects in the <strong>active cells</strong>.</p>
+    </section>
 
-<pre><code class="language-csharp">// The "Out List" Pattern
-public void Query(Vector3 pos, float radius, List&lt;T&gt; results) {
-    results.Clear(); // REUSE the memory buffer
-    
-    // Get cells in radius...
-    // results.Add(item);
-}</code></pre>
+    <!-- STEP 3 -->
+    <section id="step3">
+        <div class="step-label">Step 3: Non-Allocating Memory</div>
+        <h2>Zero Garbage Optimization</h2>
+        <p>In Unity, <code>new List&lt;T&gt;()</code> in an Update loop triggers the Garbage Collector. We solve this by <strong>Bucket Pooling</strong>.</p>
 
-        <h3>Bucket Pooling</h3>
-        <p>Even if we use the "Out List" pattern for queries, we still have internal lists for each grid cell. If we <code>new List&lt;T&gt;()</code> every time an object enters an empty cell, we're still creating garbage.</p>
-        
-        <p><strong>The Solution:</strong> A simple <strong>List Pool</strong>. When a cell becomes empty, we don't discard the list; we <code>Clear()</code> it and push it into a <code>Stack&lt;List&lt;T&gt;&gt;</code> to be recycled by the next cell.</p>
+<pre><code class="language-csharp">// Instead of discarding empty lists, we recycle them
+private Stack&lt;List&lt;T&gt;&gt; _pool = new();
 
-<pre><code class="language-csharp">// Recycling internal memory
 private List&lt;T&gt; GetNewList() {
     return _pool.Count > 0 ? _pool.Pop() : new List&lt;T&gt;();
 }
@@ -205,65 +186,53 @@ private void RecycleList(List&lt;T&gt; list) {
     _pool.Push(list);
 }</code></pre>
 
-        <h2>5. The "Room" Problem</h2>
-        <p>A common networking challenge (like the one Mikkel faced) is: <em>"I have players in Room A and Room B. They shouldn't send data to each other unless the rooms are connected."</em></p>
+        <p>By using a <strong>Stack pool</strong> for internal lists and an <strong>"Out List" pattern</strong> for queries, we can achieve millions of proximity checks with <strong>zero heap allocations</strong>.</p>
+    </section>
+
+    <!-- STEP 4 -->
+    <section id="step4">
+        <div class="step-label">Step 4: The Pro Level</div>
+        <h2>Flattened Arrays & Prefix Sums</h2>
+        <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" style="color:var(--accent)">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries and Lists entirely. We use <strong>Flat Arrays</strong>.</p>
         
-        <p>Raycasting every frame to see "Which Room Am I In?" is slow. <strong>Spatial Hashing is the fix.</strong></p>
-
-        <h3>The Setup</h3>
-        <ol style="margin: 1.5rem 2rem; color: var(--text-dim); list-style-position: inside;">
-            <li style="margin-bottom: 0.5rem"><strong>Bake:</strong> At start, register every <code>Room</code> into the Spatial Hash using its bounds.</li>
-            <li style="margin-bottom: 0.5rem"><strong>Runtime:</strong> Hash the player's position (O(1)) to get the Room they are standing in.</li>
-            <li style="margin-bottom: 0.5rem"><strong>Graph:</strong> Use a simple <code>List&lt;Room&gt; connectedRooms</code> to know who else to sync with.</li>
-        </ol>
-
-<pre><code class="language-csharp">// O(1) Room Lookup
-public Room GetCurrentRoom(Vector3 playerPos) {
-    // 1. Fast Hash Lookup
-    _roomHash.QueryRadius(playerPos, 1f, _tempResults);
-    
-    // 2. Precise Check (only on the 1-2 rooms returned)
-    foreach(var room in _tempResults) {
-        if (room.Bounds.Contains(playerPos)) return room;
-    }
-    return null;
-}</code></pre>
-
-        <h2>PurrNet Integration</h2>
-        <p>In <strong>PurrNet</strong>, you can use this to manage Observers. Instead of PurrNet checking every identity for every connection, you use the hash to find only those in range.</p>
-
-<pre><code class="language-csharp">public class PurrNetSpatialAoi : NetworkBehaviour {
-    private static SpatialHash&lt;NetworkIdentity&gt; _hash = new(10f);
-
-    public override void OnSpawn() {
-        _hash.Insert(Identity, transform.position);
-    }
-
-    private void Update() {
-        if (IsServer) _hash.Update(Identity, transform.position);
-    }
-
-    // Server-side logic to determine who sees who
-    public void UpdateObservers(NetworkConnection conn, List&lt;NetworkIdentity&gt; results) {
-        _hash.QueryRadius(conn.PlayerPosition, 50f, results);
-        // conn.SetObservers(results);
-    }
-}</code></pre>
-
         <div class="feature-grid">
             <div class="feature">
-                <h4>O(N) vs O(N²)</h4>
-                <p>Instead of 1,000,000 checks for 1,000 objects, we do ~20-50 per object. Framerates stay stable.</p>
+                <h4>1. Counting Sort</h4>
+                <p>Count how many particles are in each cell. No lists, just an array of integers.</p>
             </div>
             <div class="feature">
-                <h4>PurrNet AOI</h4>
-                <p>Use it as a custom Observer source to sync only what matters, saving huge bandwidth.</p>
+                <h4>2. Prefix Sum</h4>
+                <p>Compute <code>cellStart</code> by accumulating counts. This gives you the exact offset for every cell in memory.</p>
+            </div>
+        </div>
+
+        <p>This approach is <strong>GPU-friendly</strong> and works perfectly with Unity's <strong>Burst Compiler</strong> and <strong>Job System</strong>. It ensures <strong>cache locality</strong>—the CPU reads data in a straight line instead of jumping around memory.</p>
+
+<pre><code class="language-csharp">// The Matthias Müller / GPU Pattern
+NativeArray&lt;int&gt; cellStart;  // Starting index in particle array
+NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices
+// No Dictionaries. No Lists. Just raw, fast memory.</code></pre>
+    </section>
+
+    <!-- STEP 5 -->
+    <section id="step5">
+        <div class="step-label">The Payoff</div>
+        <h2>Real-World Applications</h2>
+        
+        <div class="feature-grid">
+            <div class="feature">
+                <h4>PurrNet / Netcode AOI</h4>
+                <p>Synchronize only the entities in a player's spatial "bubble." Save 90% of your network bandwidth.</p>
+            </div>
+            <div class="feature">
+                <h4>Room Connectivity</h4>
+                <p>Instantly find "Which room am I in?" and propagate state through connected portals in $O(1)$.</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>© 2026 Trent Sterling | spatialhash tutorial</p>
+        <p>© 2026 Trent Sterling | spatialhash deep dive</p>
         <div class="footer-links">
             <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
             <a href="https://github.com/TrentSterling">GitHub</a>
@@ -275,123 +244,107 @@ public Room GetCurrentRoom(Vector3 playerPos) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
 
     <script>
+        // --- Shared State & Themes ---
+        window.currentAccent = '#FFD700';
         function setTheme(theme, btn) {
             document.body.setAttribute('data-theme', theme);
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
             const style = getComputedStyle(document.body);
             window.currentAccent = style.getPropertyValue('--accent').trim();
         }
 
-        const canvas = document.getElementById('hashVis');
-        const ctx = canvas.getContext('2d');
-        const cellSizeSlider = document.getElementById('cellSizeRange');
-        const cellSizeDisplay = document.getElementById('cellSizeVal');
-        
-        let cellSize = 60;
-        const radius = 100;
-        let mouseX = 400;
-        let mouseY = 250;
-        const objects = [];
-        const numObjects = 150;
+        // --- Visualizer 1: Brute Force ---
+        const v1 = document.getElementById('vis1');
+        const ctx1 = v1.getContext('2d');
+        const dots = Array.from({length: 150}, () => ({x: Math.random() * v1.width, y: Math.random() * v1.height}));
+        let mouse1 = {x: 400, y: 200};
 
-        window.currentAccent = '#FFD700';
+        v1.addEventListener('mousemove', e => {
+            const r = v1.getBoundingClientRect();
+            mouse1 = {x: e.clientX - r.left, y: e.clientY - r.top};
+        });
 
-        // Initialize random AABBs
-        for (let i = 0; i < numObjects; i++) {
-            objects.push({ 
-                x: Math.random() * canvas.width, 
-                y: Math.random() * canvas.height,
-                w: 10 + Math.random() * 20,
-                h: 10 + Math.random() * 20
+        function draw1() {
+            ctx1.clearRect(0,0,v1.width,v1.height);
+            dots.forEach(d => {
+                ctx1.beginPath(); ctx1.arc(d.x, d.y, 2, 0, Math.PI*2);
+                ctx1.fillStyle = '#333'; ctx1.fill();
+                // Draw line to show brute force "checking"
+                ctx1.strokeStyle = 'rgba(255,255,255,0.02)';
+                ctx1.beginPath(); ctx1.moveTo(mouse1.x, mouse1.y); ctx1.lineTo(d.x, d.y); ctx1.stroke();
             });
+            ctx1.fillStyle = '#ff4444'; ctx1.fillRect(mouse1.x-4, mouse1.y-4, 8, 8);
+            requestAnimationFrame(draw1);
         }
+        draw1();
 
-        cellSizeSlider.addEventListener('input', (e) => {
-            cellSize = parseInt(e.target.value);
-            cellSizeDisplay.innerText = cellSize;
+        // --- Visualizer 2: Spatial Hash (AABBs) ---
+        const v2 = document.getElementById('vis2');
+        const ctx2 = v2.getContext('2d');
+        const slider2 = document.getElementById('cellSize2');
+        const display2 = document.getElementById('cellSizeVal2');
+        const aabbs = Array.from({length: 150}, () => ({
+            x: Math.random() * v2.width, y: Math.random() * v2.height,
+            w: 10 + Math.random()*20, h: 10 + Math.random()*20
+        }));
+        let mouse2 = {x: 400, y: 200};
+        let cSize2 = 60;
+
+        v2.addEventListener('mousemove', e => {
+            const r = v2.getBoundingClientRect();
+            mouse2 = {x: e.clientX - r.left, y: e.clientY - r.top};
+        });
+        slider2.addEventListener('input', e => {
+            cSize2 = parseInt(e.target.value);
+            display2.innerText = cSize2;
         });
 
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            mouseX = e.clientX - rect.left;
-            mouseY = e.clientY - rect.top;
-        });
+        function draw2() {
+            ctx2.clearRect(0,0,v2.width,v2.height);
+            const radius = 100;
+            const gX = Math.floor(mouse2.x / cSize2);
+            const gY = Math.floor(mouse2.y / cSize2);
+            const range = Math.ceil(radius / cSize2);
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Grid
+            ctx2.strokeStyle = '#111'; ctx2.lineWidth = 1;
+            for(let x=0; x<=v2.width; x+=cSize2) { ctx2.beginPath(); ctx2.moveTo(x,0); ctx2.lineTo(x,v2.height); ctx2.stroke(); }
+            for(let y=0; y<=v2.height; y+=cSize2) { ctx2.beginPath(); ctx2.moveTo(0,y); ctx2.lineTo(v2.width,y); ctx2.stroke(); }
 
-            const gridX = Math.floor(mouseX / cellSize);
-            const gridY = Math.floor(mouseY / cellSize);
-            const range = Math.ceil(radius / cellSize);
-
-            // Draw Grid
-            ctx.strokeStyle = '#1a1a1a';
-            ctx.lineWidth = 1;
-            for (let x = 0; x <= canvas.width; x += cellSize) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-            }
-            for (let y = 0; y <= canvas.height; y += cellSize) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-            }
-
-            // Highlight Active Cells
-            ctx.fillStyle = window.currentAccent + '1A';
-            for (let x = gridX - range; x <= gridX + range; x++) {
-                for (let y = gridY - range; y <= gridY + range; y++) {
-                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            // Active Cells
+            ctx2.fillStyle = window.currentAccent + '1A';
+            for(let x=gX-range; x<=gX+range; x++) {
+                for(let y=gY-range; y<=gY+range; y++) {
+                    ctx2.fillRect(x*cSize2, y*cSize2, cSize2, cSize2);
                 }
             }
 
-            // Draw Objects (AABBs)
+            // AABBs
             let checks = 0;
-            objects.forEach(obj => {
-                // Check if any part of the AABB touches the active cell range
-                const objMinX = Math.floor(obj.x / cellSize);
-                const objMaxX = Math.floor((obj.x + obj.w) / cellSize);
-                const objMinY = Math.floor(obj.y / cellSize);
-                const objMaxY = Math.floor((obj.y + obj.h) / cellSize);
-                
-                const isPossible = objMaxX >= gridX - range && objMinX <= gridX + range &&
-                                   objMaxY >= gridY - range && objMinY <= gridY + range;
-                
-                if (isPossible) checks++;
-
-                ctx.strokeStyle = isPossible ? window.currentAccent : '#333';
-                ctx.lineWidth = isPossible ? 2 : 1;
-                ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
-                
-                if (isPossible) {
-                    ctx.fillStyle = window.currentAccent + '33';
-                    ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
-                }
+            aabbs.forEach(obj => {
+                const minX = Math.floor(obj.x / cSize2);
+                const maxX = Math.floor((obj.x + obj.w) / cSize2);
+                const minY = Math.floor(obj.y / cSize2);
+                const maxY = Math.floor((obj.y + obj.h) / cSize2);
+                const active = maxX >= gX-range && minX <= gX+range && maxY >= gY-range && minY <= gY+range;
+                if(active) checks++;
+                ctx2.strokeStyle = active ? window.currentAccent : '#222';
+                ctx2.lineWidth = active ? 2 : 1;
+                ctx2.strokeRect(obj.x, obj.y, obj.w, obj.h);
+                if(active) { ctx2.fillStyle = window.currentAccent + '33'; ctx2.fillRect(obj.x, obj.y, obj.w, obj.h); }
             });
 
-            // Draw Player & Radius
-            ctx.strokeStyle = window.currentAccent;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.setLineDash([]);
+            // Player
+            ctx2.strokeStyle = window.currentAccent; ctx2.setLineDash([5,5]);
+            ctx2.beginPath(); ctx2.arc(mouse2.x, mouse2.y, radius, 0, Math.PI*2); ctx2.stroke(); ctx2.setLineDash([]);
+            ctx2.fillStyle = '#ff4444'; ctx2.fillRect(mouse2.x-6, mouse2.y-6, 12, 12);
 
-            ctx.fillStyle = '#ff4444';
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#ff4444';
-            ctx.fillRect(mouseX - 6, mouseY - 6, 12, 12);
-            ctx.shadowBlur = 0;
-
-            // Update Stats
-            document.getElementById('objCount').innerText = numObjects;
-            document.getElementById('checkCount').innerText = checks;
-            document.getElementById('bruteForce').innerText = (numObjects).toLocaleString();
-            document.getElementById('savings').innerText = Math.round((1 - checks / numObjects) * 100) + '%';
-
-            requestAnimationFrame(draw);
+            document.getElementById('checkCount2').innerText = checks;
+            document.getElementById('savings2').innerText = Math.round((1 - checks/150)*100) + '%';
+            requestAnimationFrame(draw2);
         }
-
-        draw();
+        draw2();
     </script>
 </body>
 </html>
