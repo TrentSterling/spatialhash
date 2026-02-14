@@ -123,6 +123,27 @@
         </div>
     </header>
 
+    <!-- STEP 0: THE WEB OF DEATH -->
+    <section id="step0">
+        <div class="step-label">Step 0: The Brute Force Web</div>
+        <h2>The "Web of Death"</h2>
+        <p>In a standard collision system, every object checks every other object. This is <strong>O(N²)</strong>. With just 60 objects, the CPU is already choked by thousands of unnecessary checks.</p>
+        
+        <div class="visualizer-container">
+            <div style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 2rem;">
+                <button onclick="window.setWebMode('brute')" id="btnBrute" class="bg-red-900/20 border border-red-500/50 text-red-500 px-4 py-1 rounded-full text-xs font-bold">BRUTE FORCE</button>
+                <button onclick="window.setWebMode('hash')" id="btnHash" class="bg-gray-900 border border-gray-800 text-gray-500 px-4 py-1 rounded-full text-xs font-bold">SPATIAL HASH</button>
+            </div>
+            <canvas id="visWeb" width="800" height="400"></canvas>
+            <div class="vis-controls">
+                <span>Objects: 60</span>
+                <span>Active Checks: <strong id="webChecks" style="color:#ff4444">1,770</strong></span>
+                <span id="webComplexity" style="color:#ff4444">Complexity: O(N²)</span>
+            </div>
+        </div>
+        <p>Toggle the <strong>Spatial Hash</strong> button. Notice how the "web" collapses into small, local clusters. The CPU only works on what actually matters.</p>
+    </section>
+
     <!-- STEP 1 -->
     <section id="step1">
         <div class="step-label">Step 1: The Problem</div>
@@ -253,6 +274,85 @@ NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices
             const style = getComputedStyle(document.body);
             window.currentAccent = style.getPropertyValue('--accent').trim();
         }
+
+        // --- Visualizer 0: The Web ---
+        const vWeb = document.getElementById('visWeb');
+        const ctxWeb = vWeb.getContext('2d');
+        const webDots = Array.from({length: 60}, () => ({
+            x: Math.random() * vWeb.width, 
+            y: Math.random() * vWeb.height,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5
+        }));
+        let webMode = 'brute';
+
+        window.setWebMode = (mode) => {
+            webMode = mode;
+            const bB = document.getElementById('btnBrute');
+            const bH = document.getElementById('btnHash');
+            if(mode === 'brute') {
+                bB.className = "bg-red-900/20 border border-red-500/50 text-red-500 px-4 py-1 rounded-full text-xs font-bold";
+                bH.className = "bg-gray-900 border border-gray-800 text-gray-500 px-4 py-1 rounded-full text-xs font-bold";
+                document.getElementById('webComplexity').innerText = "Complexity: O(N²)";
+                document.getElementById('webComplexity').style.color = "#ff4444";
+                document.getElementById('webChecks').style.color = "#ff4444";
+            } else {
+                bH.className = "bg-green-900/20 border border-green-500/50 text-green-500 px-4 py-1 rounded-full text-xs font-bold";
+                bB.className = "bg-gray-900 border border-gray-800 text-gray-500 px-4 py-1 rounded-full text-xs font-bold";
+                document.getElementById('webComplexity').innerText = "Complexity: ~O(N)";
+                document.getElementById('webComplexity').style.color = window.currentAccent;
+                document.getElementById('webChecks').style.color = window.currentAccent;
+            }
+        };
+
+        function drawWeb() {
+            ctxWeb.clearRect(0,0,vWeb.width,vWeb.height);
+            const wCellSize = 80;
+            let checks = 0;
+
+            // Move dots
+            webDots.forEach(d => {
+                d.x += d.vx; d.y += d.vy;
+                if(d.x < 0 || d.x > vWeb.width) d.vx *= -1;
+                if(d.y < 0 || d.y > vWeb.height) d.vy *= -1;
+            });
+
+            // Draw Web
+            ctxWeb.lineWidth = 0.5;
+            for(let i=0; i<webDots.length; i++) {
+                for(let j=i+1; j<webDots.length; j++) {
+                    const d1 = webDots[i];
+                    const d2 = webDots[j];
+                    
+                    let shouldCheck = true;
+                    if(webMode === 'hash') {
+                        const g1X = Math.floor(d1.x / wCellSize);
+                        const g1Y = Math.floor(d1.y / wCellSize);
+                        const g2X = Math.floor(d2.x / wCellSize);
+                        const g2Y = Math.floor(d2.y / wCellSize);
+                        shouldCheck = Math.abs(g1X - g2X) <= 1 && Math.abs(g1Y - g2Y) <= 1;
+                    }
+
+                    if(shouldCheck) {
+                        checks++;
+                        ctxWeb.strokeStyle = webMode === 'brute' ? 'rgba(255,68,68,0.1)' : window.currentAccent + '44';
+                        ctxWeb.beginPath(); ctxWeb.moveTo(d1.x, d1.y); ctx.lineTo(d2.x, d2.y);
+                        ctxWeb.stroke();
+                    }
+                }
+            }
+
+            // Draw Dots
+            webDots.forEach(d => {
+                ctxWeb.beginPath(); ctxWeb.arc(d.x, d.y, 2, 0, Math.PI*2);
+                ctxWeb.fillStyle = webMode === 'brute' ? '#ff4444' : window.currentAccent;
+                ctxWeb.fill();
+            });
+
+            document.getElementById('webChecks').innerText = checks.toLocaleString();
+            requestAnimationFrame(drawWeb);
+        }
+        drawWeb();
 
         // --- Visualizer 1: Brute Force ---
         const v1 = document.getElementById('vis1');
