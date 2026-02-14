@@ -10,7 +10,6 @@
 
     <style>
         :root {
-            /* Trent's Premium Gold/OLED Palette */
             --bg: #000000;
             --surface: #0a0a0a;
             --surface-hover: #141414;
@@ -20,86 +19,46 @@
             --gold-muted: #9a6700;
             --gold-bg: rgba(255, 215, 0, 0.1);
             --border: #1f1f1f;
-            --accent-glow: rgba(255, 215, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.6; color: var(--text); background: var(--bg); max-width: 900px; margin: 0 auto; padding: 4rem 1.5rem; -webkit-font-smoothing: antialiased; }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background: var(--bg);
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 4rem 1.5rem;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Nav */
-        nav {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 4rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1.5rem;
-        }
+        nav { display: flex; gap: 2rem; margin-bottom: 4rem; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
         nav a { color: var(--text-dim); text-decoration: none; transition: all 0.2s; }
         nav a:hover { color: var(--gold); }
 
-        /* Typography */
         h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 1rem; color: var(--gold); }
         h2 { font-size: 2rem; font-weight: 700; margin: 4rem 0 1.5rem; border-left: 4px solid var(--gold); padding-left: 1.5rem; letter-spacing: -0.02em; }
         h3 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; color: var(--gold-muted); }
-        
         p { margin-bottom: 1.5rem; font-size: 1.15rem; color: var(--text-dim); }
         strong { color: var(--text); font-weight: 600; }
 
-        /* Meta */
-        .subtitle { font-size: 1.4rem; color: var(--text-dim); margin-bottom: 2rem; font-weight: 400; }
+        .subtitle { font-size: 1.4rem; color: var(--text-dim); margin-bottom: 2rem; }
         .meta { display: flex; align-items: center; gap: 1rem; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 3rem; }
         .meta img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--gold); }
 
-        /* Code & Math */
         code { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; background: var(--surface); color: var(--gold); padding: 0.2em 0.4em; border-radius: 4px; }
         pre { background: var(--surface) !important; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin: 2rem 0; overflow-x: auto; position: relative; }
-        pre::after { content: 'C#'; position: absolute; top: 0.5rem; right: 1rem; font-size: 0.7rem; color: var(--gold-muted); font-family: 'JetBrains Mono'; }
         pre code { background: none !important; padding: 0 !important; font-size: 0.9em !important; }
 
-        .math-box {
-            background: var(--gold-bg);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            padding: 2rem;
-            border-radius: 16px;
-            text-align: center;
-            margin: 3rem 0;
-            position: relative;
-        }
-        .math-box::before { content: 'THE FORMULA'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 1rem; color: var(--gold); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.2em; }
-        .math-box .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--gold); }
+        /* Canvas Styles */
+        .visualizer-container { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin: 3rem 0; text-align: center; }
+        canvas { background: #050505; border-radius: 12px; border: 1px solid var(--border); cursor: crosshair; max-width: 100%; }
+        .vis-controls { margin-top: 1rem; color: var(--text-dim); font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; }
 
-        /* Features/Use Cases */
+        .math-box { background: var(--gold-bg); border: 1px solid rgba(255, 215, 0, 0.2); padding: 2rem; border-radius: 16px; text-align: center; margin: 3rem 0; }
+        .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--gold); }
+
         .feature-grid { display: grid; grid-template-cols: 1fr 1fr; gap: 1.5rem; margin: 3rem 0; }
-        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; transition: all 0.2s; }
-        .feature:hover { border-color: var(--gold-muted); background: var(--surface-hover); transform: translateY(-4px); }
-        .feature h4 { color: var(--gold); margin-bottom: 0.5rem; font-size: 1.1rem; }
-        .feature p { font-size: 0.95rem; margin-bottom: 0; }
-
-        blockquote { background: var(--gold-bg); border-radius: 12px; padding: 2rem; margin: 3rem 0; border-left: 4px solid var(--gold); }
-        blockquote p { color: var(--text); font-style: italic; margin-bottom: 0; font-size: 1.25rem; }
+        .feature { background: var(--surface); border: 1px solid var(--border); padding: 2rem; border-radius: 16px; }
+        .feature h4 { color: var(--gold); margin-bottom: 0.5rem; }
 
         footer { margin-top: 8rem; padding: 4rem 0; border-top: 1px solid var(--border); text-align: center; }
         .footer-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
-        .footer-links a { color: var(--gold-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-        .footer-links a:hover { color: var(--gold); }
+        .footer-links a { color: var(--gold-muted); text-decoration: none; font-size: 0.9rem; }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .feature-grid { grid-template-cols: 1fr; }
-            body { padding-top: 2rem; }
-        }
+        @media (max-width: 768px) { h1 { font-size: 2.5rem; } .feature-grid { grid-template-cols: 1fr; } }
     </style>
 </head>
 <body>
@@ -113,51 +72,44 @@
 
     <header>
         <h1>Spatial Hashing <br/>Deep Dive.</h1>
-        <p class="subtitle">The $O(N^2)$ killer for Unity and the secret to clean, non-allocating proximity queries.</p>
+        <p class="subtitle">A visual and technical guide to high-performance partitioning in Unity.</p>
         <div class="meta">
             <img src="https://github.com/TrentSterling.png" alt="Trent Sterling">
             <span>By <strong>Trent Sterling</strong></span>
             <span>•</span>
-            <span>Feb 14, 2026</span>
-            <span>•</span>
-            <span style="color: var(--gold)">Unity Performance</span>
+            <span style="color: var(--gold)">Tutorial & Interactive Visualizer</span>
         </div>
     </header>
 
     <section>
-        <p>
-            You’ve seen it before: you add a few hundred units or projectiles to your scene, and suddenly the frame-time spikes. You open the Profiler, and there it is—a massive block of <strong>Physics.OverlapSphere</strong> or nested <strong>foreach</strong> loops.
-        </p>
+        <h2>The Interactive Concept</h2>
+        <p>Move your mouse over the grid below. The **Red Square** is your player. The **Gold Circle** is your sync/query radius. Notice how we only check objects inside the **Bright Cells**.</p>
         
-        <p>
-            The culprit is <strong>$O(N^2)$ complexity</strong>. If every object checks every other object, your game will inevitably crawl to a halt.
-        </p>
-
-        <blockquote>
-            <p>"If you're checking 1,000 objects against 1,000 objects, you're doing 1,000,000 checks per frame. A Spatial Hash turns that into a few dozen."</p>
-        </blockquote>
-
-        <h2>1. The Logic: Mapping Space to Memory</h2>
-        <p>
-            The core idea is <strong>spatial partitioning</strong>. Instead of one giant list of objects, we divide the world into a grid. Each "cell" in the grid is a bucket that holds references to objects inside it.
-        </p>
-
-        <div class="math-box">
-            <div class="formula">
-                Cell = floor(WorldPosition / CellSize)
+        <div class="visualizer-container">
+            <canvas id="hashVis" width="800" height="500"></canvas>
+            <div class="vis-controls">
+                <span>Total Objects: <strong id="objCount">0</strong></span>
+                <span>Checks: <strong id="checkCount">0</strong> / <span id="totalPossible">0</span></span>
+                <span style="color: var(--gold)">Savings: <strong id="savings">0%</strong></span>
             </div>
         </div>
 
-        <p>
-            We take those 3D coordinates (X, Y, Z) and combine them into a single <strong>Key</strong>. This lets us use a <code>Dictionary&lt;int, List&lt;T&gt;&gt;</code> for $O(1)$ lookups.
-        </p>
+        <p>Without the hash, you'd check every single dot (O(N²)). With the hash, you only check the ones in the relevant "buckets."</p>
 
-<pre><code class="language-csharp">private int GetKey(Vector3 pos) {
+        <h2>How It Works (The Math)</h2>
+        <p>We divide 3D space into a grid. We map a position to a cell ID using a simple integer division. This is the fastest way to partition space.</p>
+
+        <div class="math-box">
+            <div class="formula">CellIndex = floor(Position / CellSize)</div>
+        </div>
+
+<pre><code class="language-csharp">// Converting 3D coordinates to a unique Integer Key
+private int GetKey(Vector3 pos) {
     int x = Mathf.FloorToInt(pos.x / _cellSize);
     int y = Mathf.FloorToInt(pos.y / _cellSize);
     int z = Mathf.FloorToInt(pos.z / _cellSize);
     
-    // The "Hash" part: Combine coordinates into one integer
+    // Combine coordinates into one hash key
     unchecked {
         int hash = 17;
         hash = hash * 23 + x;
@@ -167,74 +119,50 @@
     }
 }</code></pre>
 
-        <h2>2. Zero-Allocation (Avoiding GC)</h2>
-        <p>
-            The biggest mistake developers make is returning a <code>new List&lt;T&gt;</code> from their query function. In Unity, this creates managed heap allocations that trigger the <strong>Garbage Collector</strong>, causing those annoying micro-stutters.
-        </p>
+        <h2>Zero Allocation: The Non-Allocating Secret</h2>
+        <p>Garbage Collection (GC) spikes kill games. The secret to a <strong>Non-Allocating</strong> hash is avoiding `new` in your hot loops.</p>
+        
+        <p><strong>The Trap:</strong> Returning a `new List<T>` every query. <br/><strong>The Fix:</strong> Fulfilling a list provided by the caller.</p>
 
-        <h3>The "Out List" Pattern</h3>
-        <p>
-            To keep it <strong>non-allocating</strong>, the function should never return a list. Instead, it should fill a list that the caller provides.
-        </p>
-
-<pre><code class="language-csharp">// The caller manages the memory. Zero garbage created.
-public void QueryRadius(Vector3 position, float radius, List&lt;T&gt; results) {
-    results.Clear(); // Reuse the same memory buffer
+<pre><code class="language-csharp">// The "Out List" Pattern
+public void Query(Vector3 pos, float radius, List&lt;T&gt; results) {
+    results.Clear(); // REUSE the memory buffer
     
-    // 1. Calculate the min/max cells the radius touches
-    // 2. Loop through those specific buckets
-    // 3. Add objects to the results list
+    // Get cells in radius...
+    // results.Add(item);
 }</code></pre>
 
-        <h2>3. PurrNet & Network Interest</h2>
-        <p>
-            This isn't just for collisions. If you're using a transport like <strong>PurrNet</strong>, bandwidth is your most limited resource. You shouldn't sync a player’s rotation to someone who is 200 units away and behind a wall.
-        </p>
+        <h2>PurrNet Integration</h2>
+        <p>In <strong>PurrNet</strong>, you can use this to manage Observers. Instead of PurrNet checking every identity for every connection, you use the hash to find only those in range.</p>
 
-        <h3>Interest Management (AOI)</h3>
-        <p>
-            By using a Spatial Hash, the server can efficiently determine which "Observers" are in range of a "Subject." 
-        </p>
-        <ul style="margin: 1.5rem 2rem; color: var(--text-dim);">
-            <li style="margin-bottom: 0.5rem"><strong>Subject:</strong> Updates the hash with its position.</li>
-            <li style="margin-bottom: 0.5rem"><strong>Server:</strong> Queries the hash at the Subject's position.</li>
-            <li style="margin-bottom: 0.5rem"><strong>Transport:</strong> Only sends packets to the specific IDs returned by the hash.</li>
-        </ul>
+<pre><code class="language-csharp">public class PurrNetSpatialAoi : NetworkBehaviour {
+    private static SpatialHash&lt;NetworkIdentity&gt; _hash = new(10f);
+
+    public override void OnSpawn() {
+        _hash.Insert(Identity, transform.position);
+    }
+
+    private void Update() {
+        if (IsServer) _hash.Update(Identity, transform.position);
+    }
+
+    // Server-side logic to determine who sees who
+    public void UpdateObservers(NetworkConnection conn, List&lt;NetworkIdentity&gt; results) {
+        _hash.QueryRadius(conn.PlayerPosition, 50f, results);
+        // conn.SetObservers(results);
+    }
+}</code></pre>
 
         <div class="feature-grid">
             <div class="feature">
-                <h4>PurrNet Synergy</h4>
-                <p>Plug the Spatial Hash into PurrNet's Observer system to handle massive player counts with minimal bandwidth.</p>
+                <h4>O(N) vs O(N²)</h4>
+                <p>Instead of 1,000,000 checks for 1,000 objects, we do ~20-50 per object. Framerates stay stable.</p>
             </div>
             <div class="feature">
-                <h4>O(N) Collision</h4>
-                <p>Standard collision is O(N²). A hash makes it nearly O(N) by only checking local neighbors.</p>
-            </div>
-            <div class="feature">
-                <h4>AI Perception</h4>
-                <p>NPCs can "hear" or "see" objects in nearby cells without scanning every object in the scene.</p>
-            </div>
-            <div class="feature">
-                <h4>World Chunking</h4>
-                <p>Map your procedural chunks to the hash for instant loading/unloading based on player movement.</p>
+                <h4>PurrNet AOI</h4>
+                <p>Use it as a custom Observer source to sync only what matters, saving huge bandwidth.</p>
             </div>
         </div>
-
-        <h2>4. Implementation Tips</h2>
-        <h3>Choosing Cell Size</h3>
-        <p>
-            A common trap is choosing a cell size that is too small (too many empty buckets) or too large (too many objects per bucket). 
-            <strong>The Sweet Spot:</strong> Set <code>cellSize</code> to roughly 2x your average query radius.
-        </p>
-
-        <h3>Dynamic Updates</h3>
-        <p>
-            Don't re-hash every object every frame. Only call <code>Update()</code> if the object's <code>transform.hasChanged</code> or if it has moved a significant distance.
-        </p>
-
-        <p>
-            The source code in the repository includes a clean, production-ready <code>SpatialHash&lt;T&gt;</code> that handles all of this. It's generic, so you can use it for <code>Transform</code>, <code>NetworkIdentity</code>, or your own custom <code>Entity</code> classes.
-        </p>
     </section>
 
     <footer>
@@ -242,12 +170,96 @@ public void QueryRadius(Vector3 position, float radius, List&lt;T&gt; results) {
         <div class="footer-links">
             <a href="https://discord.gg/0hyoWZyM6y7kkFCN">Discord</a>
             <a href="https://github.com/TrentSterling">GitHub</a>
-            <a href="https://twitter.com/Trent_Sterling">Twitter</a>
             <a href="https://blog.tront.xyz">Blog</a>
         </div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+
+    <script>
+        const canvas = document.getElementById('hashVis');
+        const ctx = canvas.getContext('2d');
+        const cellSize = 50;
+        const radius = 80;
+        let mouseX = 400;
+        let mouseY = 250;
+        const objects = [];
+        const numObjects = 200;
+
+        // Initialize random objects
+        for (let i = 0; i < numObjects; i++) {
+            objects.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height });
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const gridX = Math.floor(mouseX / cellSize);
+            const gridY = Math.floor(mouseY / cellSize);
+            const range = Math.ceil(radius / cellSize);
+
+            // Draw Grid
+            ctx.strokeStyle = '#1f1f1f';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= canvas.width; x += cellSize) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y <= canvas.height; y += cellSize) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Highlight Active Cells
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
+            for (let x = gridX - range; x <= gridX + range; x++) {
+                for (let y = gridY - range; y <= gridY + range; y++) {
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+
+            // Draw Objects
+            let checks = 0;
+            objects.forEach(obj => {
+                const objGridX = Math.floor(obj.x / cellSize);
+                const objGridY = Math.floor(obj.y / cellSize);
+                
+                const isChecked = objGridX >= gridX - range && objGridX <= gridX + range &&
+                                  objGridY >= gridY - range && objGridY <= gridY + range;
+                
+                if (isChecked) checks++;
+
+                ctx.fillStyle = isChecked ? '#FFD700' : '#333';
+                ctx.beginPath();
+                ctx.arc(obj.x, obj.y, isChecked ? 3 : 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw Player & Radius
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(mouseX - 5, mouseY - 5, 10, 10);
+
+            // Update UI
+            document.getElementById('objCount').innerText = numObjects;
+            document.getElementById('checkCount').innerText = checks;
+            document.getElementById('totalPossible').innerText = numObjects;
+            document.getElementById('savings').innerText = Math.round((1 - checks / numObjects) * 100) + '%';
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
 </body>
 </html>
