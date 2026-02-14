@@ -28,6 +28,7 @@
             --accent-muted: #9a6700;
             --accent-bg: rgba(255, 215, 0, 0.1);
             --border: #1f1f1f;
+            --grid: #111111;
             --nav-bg: rgba(0, 0, 0, 0.8);
         }
 
@@ -40,18 +41,20 @@
             --accent-muted: #aa00aa;
             --accent-bg: rgba(255, 0, 255, 0.1);
             --border: #2a1a3a;
+            --grid: #1a1a2a;
             --nav-bg: rgba(5, 5, 5, 0.8);
         }
 
         [data-theme="pastel-dream"] {
             --bg: #fdf6ff;
-            --surface: #ffffff;
+            --surface: #f5f0ff;
             --text: #2d1b4d;
             --text-dim: #6b5b8b;
             --accent: #d946ef;
             --accent-muted: #a21caf;
             --accent-bg: rgba(217, 70, 239, 0.05);
-            --border: #e9d5ff;
+            --border: #c084fc;
+            --grid: #e9d5ff;
             --nav-bg: rgba(253, 246, 255, 0.8);
         }
 
@@ -64,18 +67,20 @@
             --accent-muted: #003b00;
             --accent-bg: rgba(0, 255, 65, 0.05);
             --border: #003b00;
+            --grid: #001a00;
             --nav-bg: rgba(0, 0, 0, 0.8);
         }
 
         [data-theme="paper-light"] {
             --bg: #ffffff;
-            --surface: #f8f9fa;
-            --text: #1a1a1b;
+            --surface: #f3f4f6;
+            --text: #111111;
             --text-dim: #4b5563;
             --accent: #2563eb;
             --accent-muted: #1d4ed8;
             --accent-bg: rgba(37, 99, 235, 0.05);
-            --border: #e5e7eb;
+            --border: #9ca3af;
+            --grid: #d1d5db;
             --nav-bg: rgba(255, 255, 255, 0.8);
         }
 
@@ -88,6 +93,7 @@
             --accent-muted: #0ea5e9;
             --accent-bg: rgba(56, 189, 248, 0.1);
             --border: #334155;
+            --grid: #1e293b;
             --nav-bg: rgba(15, 23, 42, 0.8);
         }
 
@@ -509,6 +515,7 @@ struct SpatialQueryJob : IJobParallelFor {
             window.currentAccent = style.getPropertyValue('--accent').trim();
             window.currentBg = style.getPropertyValue('--bg').trim();
             window.currentText = style.getPropertyValue('--text').trim();
+            window.currentGrid = style.getPropertyValue('--grid').trim();
             window.isLight = (theme === 'paper-light' || theme === 'pastel-dream');
         }
 
@@ -572,7 +579,7 @@ struct SpatialQueryJob : IJobParallelFor {
                     }
                     if(shouldCheck) {
                         checks++;
-                        ctxWeb.strokeStyle = webMode === 'brute' ? (window.isLight ? 'rgba(255,0,0,0.15)' : 'rgba(255,68,68,0.1)') : window.currentAccent + alphaLine;
+                        ctxWeb.strokeStyle = webMode === 'brute' ? (window.isLight ? 'rgba(255,0,0,0.2)' : 'rgba(255,68,68,0.1)') : window.currentAccent + alphaLine;
                         ctxWeb.beginPath(); ctxWeb.moveTo(d1.x, d1.y); ctxWeb.lineTo(d2.x, d2.y); ctxWeb.stroke();
                     }
                 }
@@ -600,7 +607,7 @@ struct SpatialQueryJob : IJobParallelFor {
             dots.forEach(d => {
                 ctx1.beginPath(); ctx1.arc(d.x, d.y, 2, 0, Math.PI*2);
                 ctx1.fillStyle = window.isLight ? '#888' : '#333'; ctx1.fill();
-                ctx1.strokeStyle = (window.isLight ? '#000' : '#fff') + lineAlpha;
+                ctx1.strokeStyle = window.currentGrid;
                 ctx1.beginPath(); ctx1.moveTo(mouse1.x, mouse1.y); ctx1.lineTo(d.x, d.y); ctx1.stroke();
             });
             ctx1.fillStyle = '#ff4444'; ctx1.fillRect(mouse1.x-4, mouse1.y-4, 8, 8);
@@ -625,7 +632,7 @@ struct SpatialQueryJob : IJobParallelFor {
         function draw2() {
             ctx2.fillStyle = window.currentBg; ctx2.fillRect(0,0,v2.width,v2.height);
             const radius = 100; const gX = Math.floor(mouse2.x / cSize2); const gY = Math.floor(mouse2.y / cSize2); const range = Math.ceil(radius / cSize2);
-            ctx2.strokeStyle = window.isLight ? '#ddd' : '#111'; ctx2.lineWidth = 1;
+            ctx2.strokeStyle = window.currentGrid; ctx2.lineWidth = 1;
             for(let x=0; x<=v2.width; x+=cSize2) { ctx2.beginPath(); ctx2.moveTo(x,0); ctx2.lineTo(x,v2.height); ctx2.stroke(); }
             for(let y=0; y<=v2.height; y+=cSize2) { ctx2.beginPath(); ctx2.moveTo(0,y); ctx2.lineTo(v2.width,y); ctx2.stroke(); }
             ctx2.fillStyle = window.currentAccent + '22';
@@ -676,7 +683,7 @@ struct SpatialQueryJob : IJobParallelFor {
                         ctxDen.fillStyle = window.isLight ? '#000' : window.currentAccent; ctxDen.font = 'bold 12px JetBrains Mono';
                         ctxDen.fillText(count, x+5, y+15);
                     }
-                    ctxDen.strokeStyle = window.isLight ? '#ddd' : '#111'; ctxDen.strokeRect(x,y,dSize,dSize);
+                    ctxDen.strokeStyle = window.currentGrid; ctxDen.strokeRect(x,y,dSize,dSize);
                 }
             }
             denDots.forEach(d => { ctxDen.fillStyle = window.isLight ? '#000' : '#fff'; ctxDen.fillRect(d.x-1, d.y-1, 2, 2); });
@@ -759,7 +766,7 @@ struct SpatialQueryJob : IJobParallelFor {
             });
             pixels.forEach(p => { p.x += p.vx; p.y += p.vy; p.vx *= 0.92; p.vy *= 0.92; });
             gCtx.fillStyle = window.currentBg; gCtx.fillRect(0,0,800,600);
-            gCtx.strokeStyle = window.isLight ? '#eee' : '#050505';
+            gCtx.strokeStyle = window.currentGrid;
             for(let x=0; x<800; x+=40) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,600); gCtx.stroke(); }
             for(let y=0; y<600; y+=40) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(800,y); gCtx.stroke(); }
             
