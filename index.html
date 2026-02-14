@@ -112,18 +112,34 @@
         </div>
     </nav>
 
+    <!-- Chapter Navigation -->
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 glass px-6 py-3 rounded-2xl border border-white/10 flex items-center gap-4 text-xs font-bold tracking-widest shadow-2xl">
+        <a href="#part1" class="hover:text-accent transition-colors">PART 1: FOUNDATIONS</a>
+        <div class="w-1 h-1 bg-border rounded-full"></div>
+        <a href="#part2" class="hover:text-accent transition-colors">PART 2: ARCHITECTURE</a>
+        <div class="w-1 h-1 bg-border rounded-full"></div>
+        <a href="#part3" class="hover:text-accent transition-colors text-gray-500">PART 3: JOBS & BURST</a>
+    </div>
+
     <header>
-        <h1>Spatial Hashing <br/>Optimization.</h1>
-        <p class="subtitle">A visual path from $O(N^2)$ brute force to million-particle performance.</p>
+        <h1>Spatial Hashing <br/>Masterclass.</h1>
+        <p class="subtitle">From $O(N^2)$ brute force to million-particle performance in Unity.</p>
         <div class="meta">
             <img src="https://github.com/TrentSterling.png" alt="Trent Sterling">
             <span>By <strong>Trent Sterling</strong></span>
             <span>•</span>
-            <span style="color: var(--gold)">Interactive Dev Log</span>
+            <span style="color: var(--accent)">Multi-Part Series</span>
         </div>
     </header>
 
-    <!-- STEP 0: THE WEB OF DEATH -->
+    <!-- PART 1 -->
+    <div id="part1">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <span class="step-label" style="font-size: 1rem;">PART ONE</span>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">The Foundations</h2>
+        </div>
+
+        <!-- STEP 0: THE WEB OF DEATH -->
     <section id="step0">
         <div class="step-label">Step 0: The Brute Force Web</div>
         <h2>The "Web of Death"</h2>
@@ -210,10 +226,18 @@ private void RecycleList(List&lt;T&gt; list) {
         <p>By using a <strong>Stack pool</strong> for internal lists and an <strong>"Out List" pattern</strong> for queries, we can achieve millions of proximity checks with <strong>zero heap allocations</strong>.</p>
     </section>
 
-    <!-- STEP 4 -->
-    <section id="step4">
-        <div class="step-label">Step 4: The Pro Level</div>
-        <h2>Flattened Arrays & Prefix Sums</h2>
+    <!-- PART 2 -->
+    <div id="part2" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem;">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <span class="step-label" style="font-size: 1rem;">PART TWO</span>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">High-Performance Architecture</h2>
+            <p class="text-dim" style="max-width: 600px; margin: 1rem auto;">Moving beyond Dictionaries and Lists into the realm of cache-friendly memory layouts.</p>
+        </div>
+
+        <!-- STEP 4 -->
+        <section id="step4">
+            <div class="step-label">Step 4: The Pro Level</div>
+            <h2>Flattened Arrays & Prefix Sums</h2>
         <p>For the ultimate performance (as seen in <a href="https://matthias-research.github.io/pages/tenMinutePhysics/11-hashing.pdf" style="color:var(--accent)">Matthias Müller's Ten Minute Physics</a>), we ditch Dictionaries and Lists entirely. We use <strong>Flat Arrays</strong>.</p>
         
         <div class="feature-grid">
@@ -235,8 +259,24 @@ NativeArray&lt;int&gt; particles;  // Contiguous list of particle indices
 // No Dictionaries. No Lists. Just raw, fast memory.</code></pre>
     </section>
 
-    <!-- STEP 5 -->
-    <section id="step5">
+    <!-- PART 3 -->
+    <div id="part3" style="margin-top: 10rem; border-top: 1px solid var(--border); padding-top: 10rem; opacity: 0.6;">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <span class="step-label" style="font-size: 1rem;">PART THREE</span>
+            <h2 style="border:none; padding:0; margin-top: 0.5rem; text-align: center; font-size: 3rem;">Jobs, Burst & Native</h2>
+            <p class="text-dim" style="max-width: 600px; margin: 1rem auto;">Taking the Spatial Hash to the extreme using Unity's C# Job System and Native Containers.</p>
+        </div>
+
+        <section>
+            <div class="math-box" style="background: rgba(255,255,255,0.05); border-style: dashed;">
+                <p style="color: var(--accent); font-weight: 800; letter-spacing: 0.2em; margin-bottom: 0;">ADVANCED SECTION: UNDER CONSTRUCTION</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">We'll be diving into <code>NativeMultiHashMap</code>, Parallel Writing, and Burst-compiled query kernels in the next update.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- PAYOFF -->
+    <section id="payoff">
         <div class="step-label">The Payoff</div>
         <h2>Real-World Applications</h2>
         
