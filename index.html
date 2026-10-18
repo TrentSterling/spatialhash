@@ -186,8 +186,16 @@
             .part-title { font-size: 3rem; }
             .feature-grid { grid-template-cols: 1fr; }
             body { padding-top: 2rem; }
-            .chapter-nav { width: 90%; gap: 1rem; padding: 0.75rem 1rem; }
-            .chapter-nav a { font-size: 0.6rem; }
+            nav { flex-wrap: wrap; gap: 1rem; }
+            .nav-links { flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+            .meta { flex-wrap: wrap; gap: 0.75rem 1rem; }
+            .meta > span:last-child { flex-basis: 100%; }
+            .footer-links { flex-wrap: wrap; gap: 1rem 1.5rem; }
+            .chapter-nav { width: 90%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; padding: 0.75rem 1rem; border-radius: 1.5rem; }
+            .chapter-nav > span { display: none; }
+            .chapter-nav a { font-size: 0.6rem; text-align: center; }
+            #toolkit .learning-step pre { max-width: 100%; }
+            #part4 .feature code { overflow-wrap: anywhere; }
         }
     </style>
 </head>
